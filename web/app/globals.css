@@ -1,0 +1,106 @@
+@import "tailwindcss";
+
+@theme {
+  /* ── accent ── */
+  --color-accent-500: #55806b;
+  --color-accent-600: #4a7260;
+  --color-accent-300: #7fa793;
+  --color-accent-tint: #eaf0ec;
+  --color-accent-border: #cdd8d1;
+  --color-accent-ink: #33463d;
+
+  /* ── neutral ── */
+  --color-neutral-bg: #f7f6f3;
+  --color-neutral-card: #ffffff;
+  --color-neutral-field: #efede8;
+  --color-neutral-chip: #edebe6;
+  --color-neutral-chip-soft: #f1efea;
+
+  /* ── line ── */
+  --color-line-form: #e4e1da;
+  --color-line-card: #eae7e1;
+  --color-line-faint: #f4f1eb;
+
+  /* ── ink（Figma の text/* を改名） ── */
+  --color-ink-primary: #2c2c2c;
+  --color-ink-secondary: #8b918d;
+  --color-ink-tertiary: #78807c;
+  --color-ink-muted: #a0a5a2;
+  --color-ink-placeholder: #b6bab7;
+
+  /* ── danger ── */
+  --color-danger-500: #d64545;
+  --color-danger-600: #c63f3f;
+  --color-danger-tint: #fbeae8;
+  --color-danger-border: #f0c4c0;
+
+  /* ── bubble（4段階＋前回話した） ── */
+  --color-bubble-1: #b8d4c4;
+  --color-bubble-2: #9bc0ac;
+  --color-bubble-3: #7fab94;
+  --color-bubble-4: #4e7c63;
+  --color-bubble-past: #e8e7e2;
+
+  /* ── セマンティック別名 ── */
+  --color-surface-page: var(--color-neutral-bg);
+  --color-surface-raised: var(--color-neutral-card);
+  --color-stroke-default: var(--color-line-card);
+  --color-link: var(--color-accent-500);
+  --color-button-primary-fill: var(--color-accent-500);
+  --color-button-primary-label: var(--color-neutral-card);
+  --color-button-dark-fill: var(--color-ink-primary);
+  --color-button-dark-hover: #444444;
+
+  /* 角丸 */
+  --radius-badge: 5px;
+  --radius-input: 12px;
+  --radius-btn: 14px;
+  --radius-card: 16px;
+
+  /* フォント */
+  --font-zen:
+    var(--font-zen-kaku), "Hiragino Sans", "Noto Sans JP", "Yu Gothic", Meiryo,
+    system-ui, sans-serif;
+
+  /* タイプスケール */
+  --text-score: 32px;
+  --text-score--line-height: 1.2;
+  --text-score--font-weight: 700;
+
+  --text-title: 28px;
+  --text-title--line-height: 1.2;
+  --text-title--font-weight: 700;
+  --text-title--letter-spacing: 0.02em;
+
+  --text-heading: 22px;
+  --text-heading--line-height: 1.2;
+  --text-heading--font-weight: 700;
+
+  --text-header: 18px;
+  --text-header--line-height: 1.2;
+  --text-header--font-weight: 700;
+
+  --text-name: 17px;
+  --text-name--line-height: 1.5;
+  --text-name--font-weight: 500;
+
+  --text-body: 16px;
+  --text-body--line-height: 1.7;
+  --text-body--font-weight: 400;
+
+  --text-action: 15px;
+  --text-action--line-height: 1.5;
+  --text-action--font-weight: 400;
+
+  --text-label: 14px;
+  --text-label--line-height: 1.5;
+  --text-label--font-weight: 500;
+
+  --text-sub: 13px;
+  --text-sub--line-height: 1.5;
+  --text-sub--font-weight: 400;
+
+  --text-caption: 11.5px;
+  --text-caption--line-height: 1.5;
+  --text-caption--font-weight: 400;
+}

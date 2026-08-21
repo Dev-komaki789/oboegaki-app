@@ -1,0 +1,759 @@
+<title>おぼえがき 開発ログ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap">
+
+<style>
+:root {
+  --ground:      #F7F6F3;
+  --surface:     #FFFFFF;
+  --surface-2:   #F1EFEA;
+  --ink:         #2C2C2C;
+  --ink-2:       #6E736F;
+  --ink-3:       #8B918D;
+  --accent:      #55806B;
+  --accent-deep: #33463D;
+  --accent-soft: #EAF0EC;
+  --accent-line: #CDD8D1;
+  --danger:      #C4403F;
+  --danger-soft: #FBEAE8;
+  --danger-line: #F0C4C0;
+  --line:        #E4E1DA;
+  --line-faint:  #EFEDE8;
+  --shadow:      0 1px 2px rgba(44,44,44,.05), 0 8px 24px -16px rgba(44,44,44,.18);
+
+  --sans: "Zen Kaku Gothic New", "Hiragino Sans", "Noto Sans JP", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground:      #1A1D1B;
+    --surface:     #232725;
+    --surface-2:   #2B302D;
+    --ink:         #E6E4DE;
+    --ink-2:       #A8AEA9;
+    --ink-3:       #868C88;
+    --accent:      #8CB4A0;
+    --accent-deep: #C4DBCD;
+    --accent-soft: #253029;
+    --accent-line: #3A4A41;
+    --danger:      #E58B88;
+    --danger-soft: #33211F;
+    --danger-line: #4E3230;
+    --line:        #333935;
+    --line-faint:  #2A2F2C;
+    --shadow:      0 1px 2px rgba(0,0,0,.3), 0 8px 24px -16px rgba(0,0,0,.6);
+  }
+}
+
+:root[data-theme="dark"] {
+  --ground:      #1A1D1B;
+  --surface:     #232725;
+  --surface-2:   #2B302D;
+  --ink:         #E6E4DE;
+  --ink-2:       #A8AEA9;
+  --ink-3:       #868C88;
+  --accent:      #8CB4A0;
+  --accent-deep: #C4DBCD;
+  --accent-soft: #253029;
+  --accent-line: #3A4A41;
+  --danger:      #E58B88;
+  --danger-soft: #33211F;
+  --danger-line: #4E3230;
+  --line:        #333935;
+  --line-faint:  #2A2F2C;
+  --shadow:      0 1px 2px rgba(0,0,0,.3), 0 8px 24px -16px rgba(0,0,0,.6);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.75;
+  -webkit-font-smoothing: antialiased;
+}
+
+.wrap {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 56px 24px 120px;
+}
+
+/* ─── header ─────────────────────────────── */
+.masthead {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding-bottom: 32px;
+  border-bottom: 2px solid var(--accent);
+}
+.eyebrow {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.masthead h1 {
+  margin: 0;
+  font-size: clamp(30px, 5vw, 42px);
+  font-weight: 700;
+  letter-spacing: .01em;
+  line-height: 1.15;
+  text-wrap: balance;
+}
+.lede {
+  margin: 0;
+  max-width: 62ch;
+  color: var(--ink-2);
+  font-size: 15px;
+}
+.meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 28px;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--ink-3);
+}
+.meta-row b {
+  color: var(--ink);
+  font-weight: 500;
+}
+
+/* ─── intro note ─────────────────────────── */
+.note {
+  margin: 32px 0 0;
+  padding: 18px 20px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  font-size: 14.5px;
+  color: var(--ink-2);
+}
+.note p { margin: 0; }
+.note p + p { margin-top: 10px; }
+
+/* ─── phase ──────────────────────────────── */
+.phase {
+  display: grid;
+  grid-template-columns: 92px 1fr;
+  gap: 0 28px;
+  padding-top: 56px;
+}
+.rail {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  position: sticky;
+  top: 24px;
+  align-self: start;
+}
+.rail .num {
+  font-family: var(--mono);
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+.rail .when {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-3);
+}
+.body { min-width: 0; }
+
+.phase h2 {
+  margin: 0 0 6px;
+  font-size: 23px;
+  font-weight: 700;
+  letter-spacing: .01em;
+  line-height: 1.3;
+  text-wrap: balance;
+}
+.phase .sub {
+  margin: 0 0 22px;
+  color: var(--ink-2);
+  font-size: 14.5px;
+  max-width: 64ch;
+}
+.phase h3 {
+  margin: 28px 0 10px;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: .01em;
+}
+.phase p { margin: 0 0 14px; max-width: 66ch; }
+.phase p:last-child { margin-bottom: 0; }
+.phase ul { margin: 0 0 14px; padding-left: 20px; max-width: 66ch; }
+.phase li { margin-bottom: 6px; }
+.phase li::marker { color: var(--accent); }
+
+code {
+  font-family: var(--mono);
+  font-size: .875em;
+  background: var(--surface-2);
+  padding: .12em .4em;
+  border-radius: 5px;
+}
+
+/* ─── tags ───────────────────────────────── */
+.tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.tag {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: .06em;
+  padding: 3px 8px;
+  border-radius: 5px;
+  border: 1px solid var(--accent-line);
+  background: var(--accent-soft);
+  color: var(--accent-deep);
+  white-space: nowrap;
+}
+.tag.fix {
+  border-color: var(--danger-line);
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+/* ─── measurement block ──────────────────── */
+.measure {
+  margin: 0 0 16px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 12px 12px 0;
+  padding: 16px 18px;
+}
+.measure .cap {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 10px;
+}
+.figures {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 32px;
+}
+.fig { display: flex; flex-direction: column; gap: 2px; }
+.fig .v {
+  font-family: var(--mono);
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.fig .v.bad { color: var(--danger); }
+.fig .v.good { color: var(--accent); }
+.fig .k { font-size: 12px; color: var(--ink-3); }
+.measure .after {
+  margin: 12px 0 0;
+  font-size: 13.5px;
+  color: var(--ink-2);
+  max-width: 62ch;
+}
+
+/* ─── table ──────────────────────────────── */
+.tablewrap {
+  overflow-x: auto;
+  margin: 0 0 16px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface);
+}
+table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+th {
+  text-align: left;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: .04em;
+  color: var(--ink-2);
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface-2);
+  white-space: nowrap;
+}
+td {
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--line-faint);
+  vertical-align: top;
+}
+tr:last-child td { border-bottom: none; }
+td.m, th.m { font-family: var(--mono); font-size: 12.5px; font-variant-numeric: tabular-nums; }
+td.no { color: var(--danger); }
+td.yes { color: var(--accent); font-weight: 500; }
+
+/* ─── code block ─────────────────────────── */
+pre {
+  margin: 0 0 16px;
+  padding: 16px 18px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow-x: auto;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  line-height: 1.75;
+  color: var(--ink);
+}
+pre code { background: none; padding: 0; font-size: inherit; }
+pre .c { color: var(--ink-3); }
+
+/* ─── verdict ────────────────────────────── */
+.verdict {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  margin: 0 0 16px;
+  padding: 14px 16px;
+  background: var(--accent-soft);
+  border: 1px solid var(--accent-line);
+  border-radius: 12px;
+  font-size: 14px;
+  color: var(--accent-deep);
+}
+.verdict .lbl {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: .1em;
+  padding-top: 3px;
+  white-space: nowrap;
+  opacity: .85;
+}
+.verdict p { margin: 0; max-width: 60ch; }
+
+/* ─── next ───────────────────────────────── */
+.next {
+  margin-top: 64px;
+  padding: 28px 0 0;
+  border-top: 2px solid var(--accent);
+}
+.next h2 { margin: 0 0 18px; font-size: 20px; font-weight: 700; }
+.steps { display: grid; gap: 10px; }
+.step {
+  display: grid;
+  grid-template-columns: 34px 1fr;
+  gap: 14px;
+  align-items: baseline;
+  padding: 13px 16px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+.step .n {
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+}
+.step .t { font-size: 14.5px; }
+.step .t em {
+  display: block;
+  font-style: normal;
+  font-size: 13px;
+  color: var(--ink-3);
+  margin-top: 2px;
+}
+.step.done { opacity: .55; }
+.step.done .n::after { content: " ✓"; }
+
+footer {
+  margin-top: 72px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--ink-3);
+}
+
+@media (max-width: 720px) {
+  .wrap { padding: 40px 18px 80px; }
+  .phase { grid-template-columns: 1fr; gap: 14px; padding-top: 44px; }
+  .rail { position: static; flex-direction: row; align-items: baseline; gap: 14px; }
+  .rail .num { font-size: 20px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}
+</style>
+
+<div class="wrap">
+
+  <header class="masthead">
+    <div class="eyebrow">Development Log</div>
+    <h1>おぼえがき 開発ログ</h1>
+    <p class="lede">
+      接客業向け会話記録アプリ「おぼえがき」の作業記録。設計資料の突き合わせから環境構築までに何をして、
+      なぜそう決めたのかを、根拠になった実測値とあわせて残す。
+    </p>
+    <div class="meta-row">
+      <span>期間 <b>2026-08-19 〜</b></span>
+      <span>設計 <b>v7 確定</b></span>
+      <span>実装 <b>環境構築 完了</b></span>
+      <span>作成 <b>SHINTARO KOMAKI</b></span>
+    </div>
+  </header>
+
+  <div class="note">
+    <p><b>このドキュメントの役割。</b> 完成した仕様は <code>資料/引き継ぎ_実装指示書.md</code> に集約してある。こちらは「どういう順で、なぜその判断に至ったか」を残すもの。同じ環境をもう一度作るときの手順書としても使える。</p>
+    <p>判断の根拠になった数値は、すべて実際に計測した値を載せている。推測は載せない。</p>
+  </div>
+
+  <!-- 01 ─────────────────────────────────── -->
+  <section class="phase">
+    <div class="rail">
+      <div class="num">01</div>
+      <div class="tags"><span class="tag fix">修正</span></div>
+      <div class="when">08-19</div>
+    </div>
+    <div class="body">
+      <h2>引き継ぎ書の誤りを見つける</h2>
+      <p class="sub">実装コードはゼロ。設計資料だけがある状態から始めた。最初に読んだ引き継ぎ書が、一次資料と食い違っていた。</p>
+
+      <p>プロジェクトには設計書・テーブル定義書・ER図・カラー仕様・スコア実装・モックアップ13枚が揃っていた。まとめ役の引き継ぎ書は生成されたもので、そこに複数の誤りが混入していた。</p>
+
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>項目</th><th>引き継ぎ書（誤）</th><th>一次資料（正）</th></tr></thead>
+          <tbody>
+            <tr><td>主要色</td><td class="m no">#2FB87C 鮮やかな緑</td><td class="m yes">#55806B くすんだ緑</td></tr>
+            <tr><td>テーブル数</td><td class="no">4つ</td><td class="yes">7つ（v7 で6つ）</td></tr>
+            <tr><td>スコア</td><td class="no">heat 1〜5 の単純合計</td><td class="yes">0〜100・EMA＋減衰＋階層集約</td></tr>
+            <tr><td>話題名</td><td class="no">8文字以内の自由入力</td><td class="yes">マスタ管理。字数制限なし</td></tr>
+            <tr><td>キーワード層</td><td class="no">存在しない</td><td class="yes">keywords テーブル（コア機能）</td></tr>
+            <tr><td>NG話題</td><td class="no">存在しない</td><td class="yes">topics.is_ng ＋常時警告</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p>「話題名は8文字以内」には〈バブル最小径62pxから逆算した制約〉というもっともらしい根拠まで添えられていたが、v7 では話題がマスタ管理になっており、根拠ごと存在しなかった。</p>
+
+      <div class="verdict">
+        <span class="lbl">決定</span>
+        <p>一次資料（テーブル定義書・ER図・カラー仕様・スコア実装・モックアップ）を正とする。要約ドキュメントは二次資料として扱い、食い違ったら必ず一次資料を開く。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 ─────────────────────────────────── -->
+  <section class="phase">
+    <div class="rail">
+      <div class="num">02</div>
+      <div class="tags"><span class="tag">追従</span></div>
+      <div class="when">08-19</div>
+    </div>
+    <div class="body">
+      <h2>設計書 v7 に合わせて書き直す</h2>
+      <p class="sub">仕様が v6 から v7 に更新された。差分を反映し、引き継ぎ書を一次資料から起こし直した。</p>
+
+      <ul>
+        <li><b>visits テーブルを削除</b>して全6テーブルに。「今日会った」は <code>records.talked_at</code> から引ける。同じ情報を2箇所に持つとズレる</li>
+        <li><b>外部キーの ON DELETE を8本すべて確定。</b> <code>keyword_id</code> だけ SET NULL ── CASCADE にするとキーワードを消しただけで会話の記録まで消える</li>
+        <li><b><code>topic_master_id</code> は RESTRICT。</b>「食べ物」という名前を消しただけで食べ物の会話が全部消えるのは事故になる</li>
+        <li><b>初期話題マスタ10件の並び順を確定。</b>上ほど誰にでも当てはまり、下ほど当たれば強いが人を選ぶ</li>
+        <li><b>見た目の特徴は <code>text</code> のまま保存。</b>分割は表示時だけ。集計しないなら別テーブルにする理由がない</li>
+      </ul>
+
+      <p><code>people.last_talked_at</code> と <code>topics.score</code> は <code>records</code> から導出できる冗長カラムだが、読み取り頻度が高いので意図的に持つ、という整理も明文化された。</p>
+    </div>
+  </section>
+
+  <!-- 03 ─────────────────────────────────── -->
+  <section class="phase">
+    <div class="rail">
+      <div class="num">03</div>
+      <div class="tags"><span class="tag">検証</span><span class="tag fix">修正</span></div>
+      <div class="when">08-19</div>
+    </div>
+    <div class="body">
+      <h2>資料間の矛盾を6点つぶす</h2>
+      <p class="sub">設計書の本文とクエリ例、モックアップと文章。突き合わせると食い違いが6箇所あった。うち3点はスコアの計算結果が変わる。</p>
+
+      <h3>減衰をかける単位で結果が割れた</h3>
+      <p>時間減衰を「キーワードごと」にかけるか「話題に1回だけ」かけるかで、検証ケース【4】の結果が変わる。大谷90を最初に振り、以後イチロー・甲子園だけを振り続けた420日時点を計算した。</p>
+
+      <div class="measure">
+        <div class="cap">計測 — 420日時点の話題スコア</div>
+        <div class="figures">
+          <div class="fig"><span class="v good">54.4</span><span class="k">キーワードごとに減衰</span></div>
+          <div class="fig"><span class="v bad">80.0</span><span class="k">話題に1回だけ減衰</span></div>
+        </div>
+        <p class="after">後者は <code>topics.last_talked_at</code> が直近のイチローの日付になるため減衰率が 1.00 のまま。大谷の90が永久に残り、「古い当たりを忘れる」という必須要件が壊れる。</p>
+      </div>
+
+      <div class="verdict">
+        <span class="lbl">決定</span>
+        <p>減衰は表示時に、各キーワードの最終会話日からかける。<code>topics.score</code> には減衰前の集約値を保存し、表示のたびに <code>records</code> から計算し直す。</p>
+      </div>
+
+      <h3>残り5点</h3>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>矛盾</th><th>決着</th></tr></thead>
+          <tbody>
+            <tr><td>キーワードなしの記録がスコアに入らない</td><td>疑似枠 <code>__none__</code> として EMA に含める。含めないと「10秒で終わる記録」がバブルに反映されない</td></tr>
+            <tr><td>キーワードスコアが本文では EMA、クエリ例では AVG</td><td>EMA が正。SQL では書きにくいので生データを取得して <code>lib/score.ts</code> で計算</td></tr>
+            <tr><td>画面番号が §3.1 と §3.3 で不一致</td><td>モックアップのファイル名を正とする（S-06 バブル / S-08 記録する）</td></tr>
+            <tr><td>バッジ省略が文章とモックアップで逆</td><td>単体を「…」で切らない。折り返し、2行目も埋まっていたら +N</td></tr>
+            <tr><td>検証コードのファイル名違い</td><td><code>score_check.py</code> が正</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- 04 ─────────────────────────────────── -->
+  <section class="phase">
+    <div class="rail">
+      <div class="num">04</div>
+      <div class="tags"><span class="tag">検証</span></div>
+      <div class="when">08-19</div>
+    </div>
+    <div class="body">
+      <h2>技術スタックを実測で裏取りする</h2>
+      <p class="sub">設計書の記述をそのまま信じず、実際にスキャフォールドしてビルドを通した。3件、想定と違った。</p>
+
+      <h3>Tailwind 4 に設定ファイルが無い</h3>
+      <p><code>create-next-app@15</code> が入れるのは Next <b>15.5.23</b> / React <b>19.1.0</b> / Tailwind <b>4</b>。Tailwind 4 は CSS ファースト方式なので <code>tailwind.config.ts</code> が生成されない。設定は <code>globals.css</code> の <code>@theme</code> ブロックに書く。</p>
+
+      <h3>フォントの subsets で 239 個の先読みが出る</h3>
+      <p>Zen Kaku Gothic New を4通りの設定でビルドして比較した。日本語フォントは分割配信されるため、指定の仕方で挙動が変わる。</p>
+
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>設定</th><th>ビルド</th><th>日本語</th><th class="m">preload</th></tr></thead>
+          <tbody>
+            <tr><td class="m">subsets: ["japanese"]</td><td class="no">エラー</td><td>—</td><td class="m">—</td></tr>
+            <tr><td class="m">どちらも書かない</td><td class="no">エラー</td><td>—</td><td class="m">—</td></tr>
+            <tr><td class="m">subsets: ["latin"]</td><td>成功</td><td class="yes">出る</td><td class="m no">239 個</td></tr>
+            <tr><td class="m">preload: false</td><td>成功</td><td class="yes">出る</td><td class="m yes">0 個</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="measure">
+        <div class="cap">計測 — ビルド成果物</div>
+        <div class="figures">
+          <div class="fig"><span class="v">364</span><span class="k">@font-face</span></div>
+          <div class="fig"><span class="v">84</span><span class="k">日本語レンジ</span></div>
+          <div class="fig"><span class="v">4.8<span style="font-size:.6em">MB</span></span><span class="k">ディスク上の総量</span></div>
+        </div>
+        <p class="after">成功した3通りは生成物が完全に同一だった。つまり <code>subsets</code> は日本語が出るかどうかに関係しない。効くのは <code>preload: false</code> だけで、これを付けないと使いもしないフォントを239個先読みする。4.8MB はディスク上の値で、転送されるのは画面に出ている文字の範囲だけ。</p>
+      </div>
+
+      <h3>クラス名の衝突を2件見つけた</h3>
+      <p>Tailwind 4 は <code>--color-*</code> と <code>--text-*</code> の両方から <code>text-</code> で始まるクラスを生成する。名前が重なると<b>片方が無言で無効になる</b>。エラーは出ない。</p>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>衝突</th><th>起きること</th><th>対処</th></tr></thead>
+          <tbody>
+            <tr><td class="m">--color-text-primary</td><td>クラスは <code>text-text-primary</code> になり、<code>text-primary</code> は存在しないクラスとして無視される</td><td><code>ink-*</code> に改名</td></tr>
+            <tr><td class="m">--color-link × --text-link</td><td>色が勝ち、フォントサイズ指定が消える</td><td>サイズ側を <code>text-action</code> に改名</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 ─────────────────────────────────── -->
+  <section class="phase">
+    <div class="rail">
+      <div class="num">05</div>
+      <div class="tags"><span class="tag">決定</span></div>
+      <div class="when">08-19</div>
+    </div>
+    <div class="body">
+      <h2>Figma バリアブルを取り込む</h2>
+      <p class="sub">Figma で定義済みの色を Tailwind の <code>@theme</code> に変換した。既存23色は完全一致。バブル色5つが新規で入っていた。</p>
+
+      <h3>バブル色が計算式から4段階パレットに変わっていた</h3>
+      <p>カラー仕様（v5）には連続計算式が書かれていたが、Figma には離散4段階＋前回話した色が定義されていた。OKLCH に変換して比較した。</p>
+
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th></th><th class="m">色相</th><th class="m">明度</th><th class="m">彩度</th></tr></thead>
+          <tbody>
+            <tr><td>旧・計算式</td><td class="m">162</td><td class="m">0.800 → 0.500</td><td class="m">0.026 → 0.066</td></tr>
+            <tr><td>Figma 4段階</td><td class="m">160〜162</td><td class="m">0.845 → 0.545</td><td class="m">0.037 → 0.064</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>色相と明度の幅（0.30）は一致するが、全体が 0.045 明るく、薄い側の彩度が高い。手で調整した版と判断し、Figma を採用した。</p>
+
+      <h3>「score 60以上で白文字」が成立しなかった</h3>
+      <p>カラー仕様のこのルールを4段階に当てはめると、コントラストが足りない帯が出る。全組み合わせを計測した。</p>
+
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>背景</th><th class="m">白文字</th><th class="m">accent-ink</th><th class="m">ink-primary</th><th>採用</th></tr></thead>
+          <tbody>
+            <tr><td class="m">bubble-1 #B8D4C4</td><td class="m no">1.58</td><td class="m yes">6.36</td><td class="m">8.81</td><td>accent-ink</td></tr>
+            <tr><td class="m">bubble-2 #9BC0AC</td><td class="m no">1.99</td><td class="m yes">5.05</td><td class="m">7.00</td><td>accent-ink</td></tr>
+            <tr><td class="m">bubble-3 #7FAB94</td><td class="m no">2.58</td><td class="m no">3.91</td><td class="m yes">5.42</td><td>ink-primary</td></tr>
+            <tr><td class="m">bubble-4 #4E7C63</td><td class="m yes">4.79</td><td class="m no">2.10</td><td class="m no">2.92</td><td>白</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="verdict">
+        <span class="lbl">決定</span>
+        <p>白文字は <code>bubble-4</code> だけに使う。60〜79帯（bubble-3）に白を載せるとコントラスト 2.58 で読めない。モックアップでも白文字は最も濃い泡にしか使われていなかった。</p>
+      </div>
+
+      <h3>Space コレクションは取り込まない</h3>
+      <p>Figma の 4 / 8 / 12 / 16 / 24 は Tailwind 4 の既定スケールと一致している（<code>p-1</code>=4px 〜 <code>p-6</code>=24px）。書き出された <code>spacing: { "4": "4px" }</code> をそのまま入れると <code>p-4</code> が 16px から 4px に変わって標準と食い違うため、定義しない。</p>
+    </div>
+  </section>
+
+  <!-- 06 ─────────────────────────────────── -->
+  <section class="phase">
+    <div class="rail">
+      <div class="num">06</div>
+      <div class="tags"><span class="tag">決定</span></div>
+      <div class="when">08-19</div>
+    </div>
+    <div class="body">
+      <h2>プロジェクト構成を決める</h2>
+      <p class="sub">設計資料とコードを混ぜず、履歴は1つのリポジトリで追えるようにした。</p>
+
+      <pre><code>oboegaki-app/            <span class="c">← git リポジトリのルート</span>
+├── web/                 <span class="c">← コードはすべてこの中</span>
+├── モックアップ/          <span class="c">← smartphone / tablet</span>
+└── 資料/                 <span class="c">← 設計書・定義書・このログ</span></code></pre>
+
+      <p><b>コードを <code>web/</code> に分ける理由。</b>ルートに展開すると <code>node_modules/</code> や設定ファイル群が並び、整理した2フォルダがその中に埋もれる。<code>web/</code> を足すだけなら既存ファイルを1つも動かさずに済む。</p>
+
+      <p><b>git をルートに置く理由。</b>開発中に設計書が更新されるので、その履歴も追いたい。<code>create-next-app</code> は既定で <code>web/</code> の中にリポジトリを作ってしまうため、<code>--disable-git</code> で抑止してからルートで <code>git init</code> する。</p>
+
+      <h3>URL 構造はタブとトグルで扱いを分ける</h3>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>画面</th><th class="m">URL</th><th>理由</th></tr></thead>
+          <tbody>
+            <tr><td>S-04/05 情報タブ</td><td class="m">/people/[id]</td><td rowspan="2">時系列／話題別は並べ替えでしかなく、どこにも遷移しない。だから状態（クエリ）で持つ</td></tr>
+            <tr><td>　└ 話題別</td><td class="m">?mode=topic</td></tr>
+            <tr><td>S-06 バブル</td><td class="m">/people/[id]/topics</td><td>泡から S-07 へ進み、戻ってくる。ルートが分かれていればブラウザの戻るがそのまま効く</td></tr>
+            <tr><td>S-07 話題詳細</td><td class="m">/people/[id]/topics/[tid]</td><td>「誰の」「どの話題か」が URL に出る</td></tr>
+            <tr><td>S-08 記録する</td><td class="m">/people/[id]/record</td><td>「保存して次を書く」が同じ URL に戻るだけで済む</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p><b><code>app/api/</code> を作らない。</b>通常はクライアントに DB を直接触らせないため API を挟むが、RLS が DB 側で権限を保証しているので Server Component から Supabase を直接呼べる。API ルートを1本も書かずに済む。</p>
+    </div>
+  </section>
+
+  <!-- 07 ─────────────────────────────────── -->
+  <section class="phase">
+    <div class="rail">
+      <div class="num">07</div>
+      <div class="tags"><span class="tag">構築</span></div>
+      <div class="when">08-21</div>
+    </div>
+    <div class="body">
+      <h2>環境構築</h2>
+      <p class="sub">ここから先は再現手順。同じ環境をもう一度作るならこの順に実行する。</p>
+
+      <h3>1. 雛形の生成</h3>
+      <pre><code>cd ~/Documents/oboegaki-app
+
+npx create-next-app@15 web \
+  --typescript --tailwind --app --eslint \
+  --no-src-dir --use-npm --import-alias "@/*" --disable-git --yes</code></pre>
+      <p><code>--no-src-dir</code> は <code>src/</code> を作らない指定。App Router では <code>app/</code> が特別扱いなので、1階層深くなるだけで利点が薄い。<code>--import-alias "@/*"</code> で <code>@/lib/supabase</code> のように書けるようになり、ファイルを移動しても import を直さずに済む。</p>
+
+      <h3>2. 依存パッケージ</h3>
+      <pre><code>cd web
+npm i @supabase/supabase-js @supabase/ssr d3-force d3-scale date-fns
+npm i -D @types/d3-force @types/d3-scale
+cd ..</code></pre>
+      <p><code>@types/*</code> は TypeScript に部品の使い方を教える説明書。d3 は元々 JavaScript で書かれていて型情報を持たないため別途入れる。コードを書く間だけ必要で完成品には含まれないので <code>-D</code> を付ける。</p>
+
+      <h3>3. git の初期化</h3>
+      <pre><code>git init
+git config core.quotepath false</code></pre>
+      <p><code>core.quotepath false</code> は日本語ファイル名をそのまま表示させる設定。入れないと <code>git status</code> で <code>資料/</code> が <code>\350\263\207\346\226\231/</code> のような数字列になる。</p>
+
+      <h3>4. デザイントークンの流し込み</h3>
+      <p><code>web/app/globals.css</code> の <code>@theme</code> にトークン72個（色33・タイプスケール10・角丸4ほか）を定義し、<code>web/app/layout.tsx</code> でフォントを読み込む。内容は引き継ぎ書 §12-4 / §12-5 に全文がある。</p>
+
+      <h3>結果</h3>
+      <div class="measure">
+        <div class="cap">計測 — 構築後のビルド出力</div>
+        <div class="figures">
+          <div class="fig"><span class="v">72</span><span class="k">@theme トークン</span></div>
+          <div class="fig"><span class="v">363</span><span class="k">woff2 ファイル</span></div>
+          <div class="fig"><span class="v good">0</span><span class="k">preload link</span></div>
+          <div class="fig"><span class="v">84</span><span class="k">日本語レンジ</span></div>
+        </div>
+        <p class="after">検証フェーズ（04）と完全に同じ数字。<code>preload: false</code> が効いており、239個の先読みは出ていない。</p>
+      </div>
+
+      <p>画面でも確認した。背景は紙色、ボタンはくすんだ緑・角丸14px、書体は丸みのあるゴシック。泡は薄緑から濃緑へ並び、<b>70 は黒文字・88 は白文字</b>と、コントラスト実測（05）で決めたとおりに切り替わっている。</p>
+
+      <h3>つまずいた点</h3>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>症状</th><th>原因</th><th>対処</th></tr></thead>
+          <tbody>
+            <tr><td class="m">Unknown at rule @theme</td><td>VSCode 標準の CSS チェッカーが Tailwind 4 独自の記法を知らないだけ。ビルドには影響しない</td><td>Tailwind CSS IntelliSense を導入</td></tr>
+            <tr><td class="m">npm error ENOENT<br>Could not read package.json</td><td><code>web/</code> の外で <code>npm run dev</code> を実行した。<code>package.json</code> は <code>web/</code> にしかない</td><td><code>cd web</code> してから実行</td></tr>
+            <tr><td>ルートに <code>node_modules</code> ができた</td><td><code>npm i -D @types/...</code> が <code>web/</code> の外で1回走った</td><td>ルート側を削除。<code>web/package.json</code> には正しく入っていた</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>.gitignore は2つに分けた</h3>
+      <p><code>.gitignore</code> は自分の置かれたフォルダから下に効き、パスはそこからの相対として読まれる。1つにまとめることもできるが、<code>web/.gitignore</code> は Next.js が用意した28行の完成品なので、書き写さずそのまま使う。</p>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>ファイル</th><th>担当</th><th>中身</th></tr></thead>
+          <tbody>
+            <tr><td class="m">web/.gitignore</td><td>Next.js アプリとして無視すべきもの</td><td>自動生成のまま。触らない</td></tr>
+            <tr><td class="m">.gitignore（ルート）</td><td>リポジトリとして無視すべきもの</td><td><code>.DS_Store</code> の2行だけ</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>判断基準は「<b><code>web/</code> だけを他所に持っていっても必要か</b>」。必要なら <code>web/</code> 側、このリポジトリ固有ならルート側。</p>
+    </div>
+  </section>
+
+  <!-- next ───────────────────────────────── -->
+  <section class="next">
+    <h2>これから</h2>
+    <div class="steps">
+      <div class="step"><span class="n">01</span><span class="t">Vercel に空デプロイ（次）<em>中身が無いうちに通す。機能が乗ってからだと環境変数とビルド設定が絡んで時間が溶ける</em></span></div>
+      <div class="step"><span class="n">02</span><span class="t">DBスキーマ・RLS・初期マスタ・ダミーデータ<em>別ユーザーで0件になることを確認する</em></span></div>
+      <div class="step"><span class="n">03</span><span class="t">認証の配線（最小）<em>RLS が auth.uid() で判定するので、これが無いと全画面が空になる。S-01 の作り込みは後回し</em></span></div>
+      <div class="step"><span class="n">04</span><span class="t">S-02 お客さん一覧<em>4項目 OR 検索。並びは last_talked_at 降順</em></span></div>
+      <div class="step"><span class="n">05</span><span class="t">S-03 お客さん登録<em>名前だけで登録できる</em></span></div>
+      <div class="step"><span class="n">06</span><span class="t">S-04/05 情報タブ ＋ S-08 記録<em>ここまでで主目的「二度聞きを防ぐ」は達成。最悪ここで止まっても発表できる</em></span></div>
+      <div class="step"><span class="n">07</span><span class="t">S-06 バブル / S-07 話題詳細 / NG警告<em>バブルは3日目に1時間だけ試作して早期判定する</em></span></div>
+      <div class="step"><span class="n">08</span><span class="t">S-01 の作り込み・PWA・仕上げ</span></div>
+    </div>
+  </section>
+
+  <footer>
+    <span>おぼえがき 開発ログ</span>
+    <span>最終更新 2026-08-21</span>
+  </footer>
+
+</div>
