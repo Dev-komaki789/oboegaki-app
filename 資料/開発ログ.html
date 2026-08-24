@@ -835,26 +835,38 @@ git config core.quotepath false</code></pre>
             <tr><td>S-01 ログイン</td><td>モックアップどおり。<b>「パスワードを忘れた方」「新規登録」は未実装</b>（Day5）</td></tr>
             <tr><td>S-02 お客さん一覧</td><td>6人が <code>last_talked_at</code> 降順で表示。<b>検索窓は見た目だけ・バッジの「2行まで＋N」も未実装</b>（Day2）</td></tr>
             <tr><td>認証</td><td>ログイン・未ログインの振り分けまで。アカウント作成は Supabase の管理画面から行う運用</td></tr>
+            <tr><td>本番デプロイ</td><td>Vercel。<b>本番でもログイン・一覧の表示を確認済み</b></td></tr>
           </tbody>
         </table>
       </div>
-      <p>Vercel への空デプロイは<b>まだ行っていない</b>。当初は「中身が無いうちに通す」方針だったが、5日に短縮された都合で認証と一覧を先に通した。<b>Day2 の早いうちに片付ける</b>。</p>
+
+      <h3>Vercel へのデプロイ</h3>
+      <p>当初は「中身が無いうちに空デプロイする」方針だったが、5日に短縮された都合で認証と一覧を先に通し、<b>デプロイは同日中に後追いで済ませた</b>。順序は変わったが、その日のうちに片付けたので方針の主旨（環境変数とビルド設定で時間を溶かさない）は守れている。</p>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>設定</th><th>値</th><th>忘れるとどうなるか</th></tr></thead>
+          <tbody>
+            <tr><td class="m">Root Directory</td><td class="m">web</td><td>既定はリポジトリのルート。<b><code>package.json</code> が見つからずビルドが失敗する</b>（07 の <code>npm error ENOENT</code> と同じ原因）</td></tr>
+            <tr><td class="m">NEXT_PUBLIC_SUPABASE_URL<br>NEXT_PUBLIC_SUPABASE_ANON_KEY</td><td>Supabase の Project URL と anon key</td><td><code>.env.local</code> は <code>.gitignore</code> 対象で GitHub に上がっていない。<b>Vercel は接続先を知らないので、別途登録しないと本番が動かない</b></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p><b><code>Vercel</code> の GitHub 連携は、撤収時に Revoke してはいけない。</b>これは訓練校PCを経由しないサーバー同士の連携で、消すと自動デプロイが止まり、退校後に自宅から push しても本番に反映されなくなる。<b>撤収で消すのは PC の認証経路（VSCode の連携と PAT）だけ</b>。<code>資料/最終日_撤収手順.md</code> の STEP 2 に対比表を入れてある。</p>
     </div>
   </section>
 
   <!-- next ───────────────────────────────── -->
   <section class="next">
     <h2>これから</h2>
-    <p class="sub">残り4日（08-25〜08-28）。最小構成を確実に届ける。詳細は <code>資料/実装ロードマップ.md</code>。</p>
+    <p class="sub">残り4日（08-25〜08-28）。土台（DB・認証・デプロイ）は 08-24 に完了。ここからは画面を1つずつ縦に通す。詳細は <code>資料/実装ロードマップ.md</code>。</p>
     <div class="steps">
-      <div class="step"><span class="n">01</span><span class="t">Vercel に空デプロイ（次）<em>08-24 に積み残した。機能が乗ってからだと環境変数とビルド設定が絡んで時間が溶ける</em></span></div>
-      <div class="step"><span class="n">02</span><span class="t">S-02 の検索とバッジ<em>4項目 OR 検索。バッジは切らずに折り返し、2行目も埋まったら +N</em></span></div>
-      <div class="step"><span class="n">03</span><span class="t">S-03 お客さん登録<em>名前だけで登録できる。会社名はサジェスト付き</em></span></div>
-      <div class="step"><span class="n">04</span><span class="t">lib/score.ts<em>§5 の3段構え。スコアの仕組み.py と同じ値が出るのを確認してから画面に進む</em></span></div>
-      <div class="step"><span class="n">05</span><span class="t">S-08 記録する<em>チップ単一選択・0〜100スライダー・保存の7手順</em></span></div>
-      <div class="step"><span class="n">06</span><span class="t">S-04/05 情報タブ ＋ NG警告<em>ここで主目的「二度聞きを防ぐ」は達成。最悪ここで止まっても発表できる</em></span></div>
-      <div class="step"><span class="n">07</span><span class="t">実機確認・S-01 の作り込み・発表準備<em>M-01 IME と Enter、M-04 キーボードで保存ボタンが隠れない。実機でしか判定できない</em></span></div>
-      <div class="step"><span class="n">08</span><span class="t">S-06 バブル / S-07 話題詳細<em>余力があれば。1つだけなら話題詳細を先に（バブルだけでは一言目が作れない）</em></span></div>
+      <div class="step"><span class="n">01</span><span class="t">S-02 の検索とバッジ（次）<em>4項目 OR 検索。バッジは切らずに折り返し、2行目も埋まったら +N</em></span></div>
+      <div class="step"><span class="n">02</span><span class="t">S-03 お客さん登録<em>名前だけで登録できる。会社名はサジェスト付き</em></span></div>
+      <div class="step"><span class="n">03</span><span class="t">lib/score.ts<em>§5 の3段構え。スコアの仕組み.py と同じ値が出るのを確認してから画面に進む</em></span></div>
+      <div class="step"><span class="n">04</span><span class="t">S-08 記録する<em>チップ単一選択・0〜100スライダー・保存の7手順</em></span></div>
+      <div class="step"><span class="n">05</span><span class="t">S-04/05 情報タブ ＋ NG警告<em>ここで主目的「二度聞きを防ぐ」は達成。最悪ここで止まっても発表できる</em></span></div>
+      <div class="step"><span class="n">06</span><span class="t">実機確認・S-01 の作り込み・発表準備<em>M-01 IME と Enter、M-04 キーボードで保存ボタンが隠れない。実機でしか判定できない</em></span></div>
+      <div class="step"><span class="n">07</span><span class="t">S-06 バブル / S-07 話題詳細<em>余力があれば。1つだけなら話題詳細を先に（バブルだけでは一言目が作れない）</em></span></div>
     </div>
   </section>
 
