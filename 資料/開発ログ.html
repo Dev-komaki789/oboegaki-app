@@ -401,13 +401,13 @@ footer {
     <div class="eyebrow">Development Log</div>
     <h1>おぼえがき 開発ログ</h1>
     <p class="lede">
-      接客業向け会話記録アプリ「おぼえがき」の作業記録。設計資料の突き合わせから環境構築までに何をして、
+      接客業向け会話記録アプリ「おぼえがき」の作業記録。設計資料の突き合わせから、環境構築・DB・認証・一覧表示までに何をして、
       なぜそう決めたのかを、根拠になった実測値とあわせて残す。
     </p>
     <div class="meta-row">
       <span>期間 <b>2026-08-19 〜</b></span>
       <span>設計 <b>v7 確定</b></span>
-      <span>実装 <b>環境構築 完了</b></span>
+      <span>実装 <b>認証・一覧 まで完了</b></span>
       <span>作成 <b>SHINTARO KOMAKI</b></span>
     </div>
   </header>
@@ -736,24 +736,131 @@ git config core.quotepath false</code></pre>
     </div>
   </section>
 
+  <!-- 08 ─────────────────────────────────── -->
+  <section class="phase">
+    <div class="rail">
+      <div class="num">08</div>
+      <div class="tags"><span class="tag">構築</span><span class="tag">検証</span></div>
+      <div class="when">08-24</div>
+    </div>
+    <div class="body">
+      <h2>データベースと認証を通す</h2>
+      <p class="sub">Supabase のプロジェクト作成から、ログインしてお客さん一覧が出るところまで。設計書 §4 に足りないものが2つ見つかった。</p>
+
+      <h3>残り日数が10日から5日になった</h3>
+      <p>作業できるのは 08-24 から 08-28 までの5日と判明した。当初計画の半分。<b>最小構成の5機能（認証／登録／一覧・検索／お客さん情報／話題の記録）に絞る</b>と決め、<code>資料/実装ロードマップ.md</code> に割り当て直した。</p>
+      <p>引き継ぎ書 §10 は「バブル本体・話題詳細は削らない」としているが、5日では両立しない。<b>両者は Day5 の余力次第</b>とし、方針と衝突していることを明記した上で進める。</p>
+
+      <h3>§4 の DDL には足りないものが2つあった</h3>
+      <p>設計書どおりに流すだけでは動かない箇所が2つある。どちらも<b>実行してもエラーが出ず、後の工程で初めて詰まる</b>種類のもの。</p>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>足りなかったもの</th><th>放置するとどうなるか</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><code>auth.users</code> → <code>public.users</code> のトリガー</td>
+              <td><b>お客さんを1人も登録できない。</b>Supabase の認証は <code>auth.users</code> にしか行を作らないが、<code>people.user_id</code> が参照しているのは <code>public.users</code>。橋渡しが無いと外部キー違反で全 insert が弾かれる</td>
+            </tr>
+            <tr>
+              <td><code>users</code> / <code>keywords</code> / <code>topics</code> の RLS ポリシー</td>
+              <td>§4 は本文で3テーブルに言及しているのに SQL が <code>people</code> / <code>records</code> / <code>topic_masters</code> の3つ分しか無い。<code>users</code> のポリシーが無いと<b>自分の行すら読めない</b></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p>トリガーには <code>security definer</code> を付ける。アカウント作成の瞬間はまだログインしていないため、RLS を越えて書き込む必要があるから。強い権限なので<b>処理は「1テーブルに1行入れるだけ」に絞った</b>。</p>
+
+      <h3>RLS が効いていることを実測した</h3>
+      <p>同じ URL・同じコード・同じ DB で、ログインしている人だけを変えて件数を数えた。</p>
+      <div class="measure">
+        <div class="cap">計測 — <code>/people</code> に表示された件数</div>
+        <div class="figures">
+          <div class="fig"><span class="v">6</span><span class="k">本人でログイン</span></div>
+          <div class="fig"><span class="v good">0</span><span class="k">別ユーザーでログイン</span></div>
+          <div class="fig"><span class="v">6</span><span class="k">SQL Editor（管理者）</span></div>
+        </div>
+        <p class="after">アプリ側のコードに <code>where user_id = ...</code> は1文字も書いていない。PostgreSQL が <code>using (user_id = auth.uid())</code> を自動で足している。<b>絞り忘れという事故が構造的に起きない。</b></p>
+      </div>
+      <p>SQL Editor で6件見えるのは管理者権限が RLS を無視するため。<b>「Table Editor では見えるのにアプリでは0件」は故障ではない</b>ので、ここで悩まないこと。</p>
+
+      <h3>Server Component から DB を直接読む</h3>
+      <p>06 で決めたとおり <code>app/api/</code> は1本も書いていない。一覧ページは <code>async function</code> のまま <code>await supabase.from("people").select(...)</code> を呼ぶだけで済んだ。</p>
+      <p>窓口は用途で2つに分けた。ログイン状態は Cookie で持つが、<b>サーバーとブラウザでは Cookie の取り方が違う</b>ため。</p>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>ファイル</th><th>用途</th><th>備考</th></tr></thead>
+          <tbody>
+            <tr><td class="m">lib/supabase/server.ts</td><td>Server Component / Server Action</td><td>Next.js 15 では <code>await cookies()</code>。<b><code>await</code> を忘れると動かない</b></td></tr>
+            <tr><td class="m">lib/supabase/client.ts</td><td>Client Component</td><td>ブラウザが Cookie を持つので短い</td></tr>
+            <tr><td class="m">middleware.ts</td><td>全リクエストの門番</td><td><code>web/</code> 直下でないと<b>無言で無視される</b></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p><code>middleware.ts</code> の <code>await supabase.auth.getUser()</code> は<b>ログイン状態の更新を兼ねている</b>。消すとその場では動くが、しばらく使うと勝手にログアウトされる。</p>
+
+      <h3>つまずいた点</h3>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>症状</th><th>原因</th><th>対処</th></tr></thead>
+          <tbody>
+            <tr><td class="m">モジュール '@supabase/ssr' が見つかりません<br>名前 'process' が見つかりません</td><td><code>web/node_modules</code> が丸ごと無かった。<code>.gitignore</code> 対象なので、フォルダをコピーし直した際に付いてこない</td><td><code>cd web &amp;&amp; npm install</code>。そのあと <code>TypeScript: Restart TS Server</code></td></tr>
+            <tr><td class="m">The default export is not a React Component</td><td>ファイルを編集している途中の一時的な状態</td><td>書き終われば消える。無視してよい</td></tr>
+            <tr><td class="m">Invalid login credentials</td><td>エラー文言を<b>意図的に1種類に統一している</b>ため、画面からは原因が分からない</td><td>Server Action に <code>console.error</code> を1行足す。サーバーで動くので <code>npm run dev</code> のターミナルに出る。<b>画面の表示は変わらないので残しておいてよい</b></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>ログインのエラーを「メールが無い」と「パスワードが違う」で区別しないのは、<b>区別すると総当たりで登録済みアドレスの一覧を作れてしまう</b>ため。原因はサーバー側のログでだけ見る。</p>
+
+      <h3>SQL をリポジトリに残した</h3>
+      <p>実行して成功したものだけを、実行順に番号を付けて <code>supabase/</code> に置いた。作り直すときは番号順に流す。Supabase の画面の中だけに置くと、<b>撤収後に自宅で再現できない</b>。</p>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>ファイル</th><th>中身</th></tr></thead>
+          <tbody>
+            <tr><td class="m">01_schema.sql</td><td>§4 の DDL 全6テーブル ＋ トリガー</td></tr>
+            <tr><td class="m">02_rls.sql</td><td>RLS 7ポリシー。§4 に無い3テーブル分を補った</td></tr>
+            <tr><td class="m">03_seed_master.sql</td><td>初期話題マスタ10件（<code>user_id IS NULL</code>）</td></tr>
+            <tr><td class="m">04_seed_sample.sql</td><td>サンプルのお客さん6人</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>サンプルの <code>last_talked_at</code> は <code>current_date - 3</code> のような<b>相対日</b>で入れた。固定日にすると「3日前」が翌日には「4日前」になり、デモのたびに入れ直すことになる。</p>
+      <p>同姓同名の「田中みか」を2人入れてある。これは例外ではなく<b>標準ケース</b>で、<code>appearance</code> で見分けられるかを確認するため。</p>
+
+      <h3>今日できたもの</h3>
+      <div class="tablewrap">
+        <table>
+          <thead><tr><th>画面 / 部品</th><th>状態</th></tr></thead>
+          <tbody>
+            <tr><td>S-01 ログイン</td><td>モックアップどおり。<b>「パスワードを忘れた方」「新規登録」は未実装</b>（Day5）</td></tr>
+            <tr><td>S-02 お客さん一覧</td><td>6人が <code>last_talked_at</code> 降順で表示。<b>検索窓は見た目だけ・バッジの「2行まで＋N」も未実装</b>（Day2）</td></tr>
+            <tr><td>認証</td><td>ログイン・未ログインの振り分けまで。アカウント作成は Supabase の管理画面から行う運用</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Vercel への空デプロイは<b>まだ行っていない</b>。当初は「中身が無いうちに通す」方針だったが、5日に短縮された都合で認証と一覧を先に通した。<b>Day2 の早いうちに片付ける</b>。</p>
+    </div>
+  </section>
+
   <!-- next ───────────────────────────────── -->
   <section class="next">
     <h2>これから</h2>
+    <p class="sub">残り4日（08-25〜08-28）。最小構成を確実に届ける。詳細は <code>資料/実装ロードマップ.md</code>。</p>
     <div class="steps">
-      <div class="step"><span class="n">01</span><span class="t">Vercel に空デプロイ（次）<em>中身が無いうちに通す。機能が乗ってからだと環境変数とビルド設定が絡んで時間が溶ける</em></span></div>
-      <div class="step"><span class="n">02</span><span class="t">DBスキーマ・RLS・初期マスタ・ダミーデータ<em>別ユーザーで0件になることを確認する</em></span></div>
-      <div class="step"><span class="n">03</span><span class="t">認証の配線（最小）<em>RLS が auth.uid() で判定するので、これが無いと全画面が空になる。S-01 の作り込みは後回し</em></span></div>
-      <div class="step"><span class="n">04</span><span class="t">S-02 お客さん一覧<em>4項目 OR 検索。並びは last_talked_at 降順</em></span></div>
-      <div class="step"><span class="n">05</span><span class="t">S-03 お客さん登録<em>名前だけで登録できる</em></span></div>
-      <div class="step"><span class="n">06</span><span class="t">S-04/05 情報タブ ＋ S-08 記録<em>ここまでで主目的「二度聞きを防ぐ」は達成。最悪ここで止まっても発表できる</em></span></div>
-      <div class="step"><span class="n">07</span><span class="t">S-06 バブル / S-07 話題詳細 / NG警告<em>バブルは3日目に1時間だけ試作して早期判定する</em></span></div>
-      <div class="step"><span class="n">08</span><span class="t">S-01 の作り込み・PWA・仕上げ</span></div>
+      <div class="step"><span class="n">01</span><span class="t">Vercel に空デプロイ（次）<em>08-24 に積み残した。機能が乗ってからだと環境変数とビルド設定が絡んで時間が溶ける</em></span></div>
+      <div class="step"><span class="n">02</span><span class="t">S-02 の検索とバッジ<em>4項目 OR 検索。バッジは切らずに折り返し、2行目も埋まったら +N</em></span></div>
+      <div class="step"><span class="n">03</span><span class="t">S-03 お客さん登録<em>名前だけで登録できる。会社名はサジェスト付き</em></span></div>
+      <div class="step"><span class="n">04</span><span class="t">lib/score.ts<em>§5 の3段構え。スコアの仕組み.py と同じ値が出るのを確認してから画面に進む</em></span></div>
+      <div class="step"><span class="n">05</span><span class="t">S-08 記録する<em>チップ単一選択・0〜100スライダー・保存の7手順</em></span></div>
+      <div class="step"><span class="n">06</span><span class="t">S-04/05 情報タブ ＋ NG警告<em>ここで主目的「二度聞きを防ぐ」は達成。最悪ここで止まっても発表できる</em></span></div>
+      <div class="step"><span class="n">07</span><span class="t">実機確認・S-01 の作り込み・発表準備<em>M-01 IME と Enter、M-04 キーボードで保存ボタンが隠れない。実機でしか判定できない</em></span></div>
+      <div class="step"><span class="n">08</span><span class="t">S-06 バブル / S-07 話題詳細<em>余力があれば。1つだけなら話題詳細を先に（バブルだけでは一言目が作れない）</em></span></div>
     </div>
   </section>
 
   <footer>
     <span>おぼえがき 開発ログ</span>
-    <span>最終更新 2026-08-21</span>
+    <span>最終更新 2026-08-24</span>
   </footer>
 
 </div>
