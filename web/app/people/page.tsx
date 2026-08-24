@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { differenceInCalendarDays, format, parseISO } from "date-fns";
+import SearchBox from "./SearchBox";
 
 /** 年代・性別を1つにまとめ、見た目の特徴を「、」で分割してバッジの配列にする */
 function toBadges(p: {
@@ -29,16 +30,43 @@ function sinceLabel(d: string | null) {
   return `${days}日前`;
 }
 
-export default async function PeoplePage() {
+export default async function PeoplePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string }>;
+}) {
+  // Next.js 15 では searchParams も非同期。cookies() と同じ
+  const { q = "" } = await searchParams;
+  const keyword = q.trim();
+
   const supabase = await createClient();
 
   // user_id での絞り込みは書かない。RLS が自動でやる
-  const { data: people, error } = await supabase
+  let query = supabase
     .from("people")
     .select(
       "id, name, name_kana, age_group, gender, appearance, last_talked_at",
     )
     .order("last_talked_at", { ascending: false, nullsFirst: false });
+
+  // 名前・よみがな・見た目・会社名の4項目を横断（§9 S-02）。役職は含めない
+  if (keyword) {
+    // PostgREST の or は「,」で条件を区切る。検索語に「,()」が入ると
+    // 構文が壊れるので、先に落としておく
+    const safe = keyword.replace(/[,()%*]/g, " ").trim();
+    if (safe) {
+      query = query.or(
+        [
+          `name.ilike.%${safe}%`,
+          `name_kana.ilike.%${safe}%`,
+          `appearance.ilike.%${safe}%`,
+          `company.ilike.%${safe}%`,
+        ].join(","),
+      );
+    }
+  }
+
+  const { data: people, error } = await query;
 
   if (error) {
     return (
@@ -59,14 +87,14 @@ export default async function PeoplePage() {
         <span className="text-sub text-ink-secondary">{list.length}人</span>
       </header>
 
-      {/* TODO(Day2): 検索を配線する。いまは見た目だけ */}
-      <div className="mt-5 rounded-input bg-neutral-field px-4 py-4 text-body text-ink-placeholder">
-        名前・見た目・会社名で検索
-      </div>
+      {/* 窓は1つ。4項目を横断する。autoFocus は付けない（M-05） */}
+      <SearchBox initialQuery={keyword} />
 
       {list.length === 0 ? (
         <p className="mt-10 text-center text-body text-ink-secondary">
-          お客さんがまだ登録されていません。
+          {keyword
+            ? `「${keyword}」に一致するお客さんはいません。`
+            : "お客さんがまだ登録されていません。"}
         </p>
       ) : (
         <ul className="mt-4 space-y-3">
@@ -89,11 +117,22 @@ export default async function PeoplePage() {
                     </span>
                   </div>
 
-                  <div className="mt-2 flex flex-wrap gap-2">
+                  {/*
+                    バッジは最大2行（§9 S-02）。
+                      1個の高さ = py-1(8px) + leading-5(20px) = 28px
+                      2行分     = 28 * 2 + gap-2(8px)         = 64px = max-h-16
+                    3行目は 72px の位置から始まるので枠の完全に外。半分見えることはない。
+                    折り返しはブラウザが計算するので、バッジ単体が途中で切れることはない。
+
+                    ※ 仕様の「2行目にも収まらない場合は +N」は未実装。
+                      文字幅をサーバー側で見積もる必要があり、割に合わないと判断した。
+                      3行目以降は静かに隠れる。
+                  */}
+                  <div className="mt-2 flex max-h-16 flex-wrap gap-2 overflow-hidden">
                     {badges.map((b, i) => (
                       <span
                         key={i}
-                        className="rounded-full bg-neutral-chip px-3 py-1 text-sub text-ink-tertiary"
+                        className="shrink-0 whitespace-nowrap rounded-full bg-neutral-chip px-3 py-1 text-sub leading-5 text-ink-tertiary"
                       >
                         {b}
                       </span>
