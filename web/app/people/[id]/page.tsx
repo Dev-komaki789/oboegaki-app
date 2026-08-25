@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import ModeTabs from "@/components/ModeTabs";
 import { differenceInCalendarDays, format, parseISO } from "date-fns";
 
 type RecordRow = {
@@ -181,98 +182,75 @@ export default async function PersonPage({
         </dl>
       </div>
 
-      {/* モード切替は右寄せのピル2つ。並べ替えでしかないので状態（クエリ）で持つ */}
-      <div className="mt-5 flex justify-end gap-2">
-        <Link
-          href={`/people/${person.id}`}
-          className={
-            "rounded-full px-5 py-2 text-action " +
-            (!byTopic
-              ? "bg-accent-500 font-bold text-neutral-card"
-              : "bg-neutral-chip text-ink-secondary")
-          }
-        >
-          時系列
-        </Link>
-        <Link
-          href={`/people/${person.id}?mode=topic`}
-          className={
-            "rounded-full px-5 py-2 text-action " +
-            (byTopic
-              ? "bg-accent-500 font-bold text-neutral-card"
-              : "bg-neutral-chip text-ink-secondary")
-          }
-        >
-          話題別
-        </Link>
-      </div>
-
       {records.length === 0 ? (
         <p className="mt-10 text-center text-body text-ink-secondary">
           まだ記録がありません。
         </p>
-      ) : byTopic ? (
-        /* ── 話題別 ─────────────────────────── */
-        <div className="mt-4 space-y-3">
-          {[...groups.values()].map((g) => (
-            <div
-              key={g.name}
-              className="rounded-card border border-line-card bg-neutral-card p-4"
-            >
-              <div className="flex items-center gap-2 border-b border-line-faint pb-3">
-                <span className="text-name text-accent-500">{g.name}</span>
-                {g.rows.some((r) => r.talked_at === latestVisit) && (
-                  <span className="rounded-full bg-accent-500 px-2 py-0.5 text-caption text-neutral-card">
-                    更新
-                  </span>
-                )}
-              </div>
-              {g.rows.map((r) => (
+      ) : (
+        /* 両方サーバーで描いておいて、表示だけ切り替える。
+           同じ records を並べ替えているだけなので往復が要らない */
+        <ModeTabs
+          initialMode={byTopic ? "topic" : "time"}
+          basePath={`/people/${person.id}`}
+          byTopic={
+            <div className="mt-4 space-y-3">
+              {[...groups.values()].map((g) => (
                 <div
-                  key={r.id}
-                  className="flex items-baseline justify-between gap-3 border-b border-line-faint py-3 last:border-0 last:pb-0"
+                  key={g.name}
+                  className="rounded-card border border-line-card bg-neutral-card p-4"
                 >
-                  <span className="text-body text-ink-primary">
-                    {r.content}
-                  </span>
-                  <span className="shrink-0 text-caption text-ink-muted">
-                    {format(parseISO(r.talked_at), "yyyy/MM/dd")}
-                  </span>
+                  <div className="flex items-center gap-2 border-b border-line-faint pb-3">
+                    <span className="text-name text-accent-500">{g.name}</span>
+                    {g.rows.some((r) => r.talked_at === latestVisit) && (
+                      <span className="rounded-full bg-accent-500 px-2 py-0.5 text-caption text-neutral-card">
+                        更新
+                      </span>
+                    )}
+                  </div>
+                  {g.rows.map((r) => (
+                    <div
+                      key={r.id}
+                      className="flex items-baseline justify-between gap-3 border-b border-line-faint py-3 last:border-0 last:pb-0"
+                    >
+                      <span className="text-body text-ink-primary">{r.content}</span>
+                      <span className="shrink-0 text-caption text-ink-muted">
+                        {format(parseISO(r.talked_at), "yyyy/MM/dd")}
+                      </span>
+                    </div>
+                  ))}
                 </div>
               ))}
             </div>
-          ))}
-        </div>
-      ) : (
-        /* ── 時系列 ─────────────────────────── */
-        <ol className="mt-4">
-          {records.map((r) => (
-            <li key={r.id} className="flex gap-3">
-              <div className="w-[76px] shrink-0 pt-1 text-right text-caption text-ink-muted">
-                {format(parseISO(r.talked_at), "yyyy/MM/dd")}
-              </div>
-              <div className="relative flex w-3 shrink-0 justify-center">
-                <span className="absolute top-2 size-2 rounded-full bg-accent-300" />
-                <span className="w-px flex-1 bg-line-form" />
-              </div>
-              <div className="mb-3 flex-1 rounded-card border border-line-card bg-neutral-card p-4">
-                <div className="flex items-center gap-2">
-                  <span className="text-label text-accent-500">
-                    {r.topicName}
-                  </span>
-                  {r.talked_at === latestVisit && (
-                    <span className="rounded-full bg-accent-500 px-2 py-0.5 text-caption text-neutral-card">
-                      更新
-                    </span>
-                  )}
-                </div>
-                {r.content && (
-                  <p className="mt-1 text-body text-ink-primary">{r.content}</p>
-                )}
-              </div>
-            </li>
-          ))}
-        </ol>
+          }
+          timeline={
+            <ol className="mt-4">
+              {records.map((r) => (
+                <li key={r.id} className="flex gap-3">
+                  <div className="w-[76px] shrink-0 pt-1 text-right text-caption text-ink-muted">
+                    {format(parseISO(r.talked_at), "yyyy/MM/dd")}
+                  </div>
+                  <div className="relative flex w-3 shrink-0 justify-center">
+                    <span className="absolute top-2 size-2 rounded-full bg-accent-300" />
+                    <span className="w-px flex-1 bg-line-form" />
+                  </div>
+                  <div className="mb-3 flex-1 rounded-card border border-line-card bg-neutral-card p-4">
+                    <div className="flex items-center gap-2">
+                      <span className="text-label text-accent-500">{r.topicName}</span>
+                      {r.talked_at === latestVisit && (
+                        <span className="rounded-full bg-accent-500 px-2 py-0.5 text-caption text-neutral-card">
+                          更新
+                        </span>
+                      )}
+                    </div>
+                    {r.content && (
+                      <p className="mt-1 text-body text-ink-primary">{r.content}</p>
+                    )}
+                  </div>
+                </li>
+              ))}
+            </ol>
+          }
+        />
       )}
 
       <div className="fixed inset-x-0 bottom-0 mx-auto w-full max-w-[390px] px-5 pb-6">
