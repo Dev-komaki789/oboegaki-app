@@ -113,16 +113,18 @@ export default async function PeoplePage({
                   </div>
 
                   <div className="min-w-0 flex-1">
-                    {/* 名前もよみがなも長いことがある。truncate が無いと
-                        右のカラムを押し出してカードからはみ出す */}
-                    <div className="flex min-w-0 items-baseline gap-2">
-                      <span className="truncate text-name text-ink-primary">
-                        {p.name}
-                      </span>
-                      <span className="truncate text-sub text-ink-secondary">
+                    {/* よみがなは名前の上に置く（ふりがなと同じ並び）。
+                        モックアップは横並びだが、それだと名前に使える幅が
+                        176px ほどしかなく「中村 あゆみ」程度で省略されてしまう。
+                        上下に分ければ名前が横幅を独占できる */}
+                    {p.name_kana && (
+                      <p className="truncate text-caption text-ink-secondary">
                         {p.name_kana}
-                      </span>
-                    </div>
+                      </p>
+                    )}
+                    <p className="truncate text-name text-ink-primary">
+                      {p.name}
+                    </p>
 
                     {/*
                     バッジは最大2行（§9 S-02）。
