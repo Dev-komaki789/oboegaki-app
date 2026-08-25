@@ -102,23 +102,26 @@ export default async function PeoplePage({
           {list.map((p) => {
             const badges = toBadges(p);
             return (
-              <li
-                key={p.id}
-                className="flex gap-4 rounded-card border border-line-card bg-neutral-card p-4"
-              >
-                <div className="flex size-14 shrink-0 items-center justify-center rounded-btn bg-accent-500 text-header text-neutral-card">
-                  {p.name.trim().charAt(0)}
-                </div>
-
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-name text-ink-primary">{p.name}</span>
-                    <span className="text-sub text-ink-secondary">
-                      {p.name_kana}
-                    </span>
+              <li key={p.id}>
+                <Link
+                  href={`/people/${p.id}`}
+                  className="flex gap-4 rounded-card border border-line-card bg-neutral-card p-4"
+                >
+                  <div className="flex size-14 shrink-0 items-center justify-center rounded-btn bg-accent-500 text-header text-neutral-card">
+                    {p.name.trim().charAt(0)}
                   </div>
 
-                  {/*
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-name text-ink-primary">
+                        {p.name}
+                      </span>
+                      <span className="text-sub text-ink-secondary">
+                        {p.name_kana}
+                      </span>
+                    </div>
+
+                    {/*
                     バッジは最大2行（§9 S-02）。
                       1個の高さ = py-1(8px) + leading-5(20px) = 28px
                       2行分     = 28 * 2 + gap-2(8px)         = 64px = max-h-16
@@ -129,28 +132,29 @@ export default async function PeoplePage({
                       文字幅をサーバー側で見積もる必要があり、割に合わないと判断した。
                       3行目以降は静かに隠れる。
                   */}
-                  <div className="mt-2 flex max-h-16 flex-wrap gap-2 overflow-hidden">
-                    {badges.map((b, i) => (
-                      <span
-                        key={i}
-                        className="shrink-0 whitespace-nowrap rounded-full bg-neutral-chip px-3 py-1 text-sub leading-5 text-ink-tertiary"
-                      >
-                        {b}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="shrink-0 text-right">
-                  <div className="text-name font-bold text-accent-500">
-                    {sinceLabel(p.last_talked_at)}
-                  </div>
-                  {p.last_talked_at && (
-                    <div className="mt-1 text-caption text-ink-muted">
-                      前回 {format(parseISO(p.last_talked_at), "yyyy/MM/dd")}
+                    <div className="mt-2 flex max-h-16 flex-wrap gap-2 overflow-hidden">
+                      {badges.map((b, i) => (
+                        <span
+                          key={i}
+                          className="shrink-0 whitespace-nowrap rounded-full bg-neutral-chip px-3 py-1 text-sub leading-5 text-ink-tertiary"
+                        >
+                          {b}
+                        </span>
+                      ))}
                     </div>
-                  )}
-                </div>
+                  </div>
+
+                  <div className="shrink-0 text-right">
+                    <div className="text-name font-bold text-accent-500">
+                      {sinceLabel(p.last_talked_at)}
+                    </div>
+                    {p.last_talked_at && (
+                      <div className="mt-1 text-caption text-ink-muted">
+                        前回 {format(parseISO(p.last_talked_at), "yyyy/MM/dd")}
+                      </div>
+                    )}
+                  </div>
+                </Link>
               </li>
             );
           })}
