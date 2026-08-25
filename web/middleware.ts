@@ -52,7 +52,8 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    // 画像や静的ファイル以外の、すべてのパスで動かす
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    // 静的ファイルは認証チェックを通さない。
+    // manifest.json を除外し忘れると PWA が成立しない（未ログインで 307 になる）
+    "/((?!_next/static|_next/image|favicon.ico|manifest.json|apple-touch-icon.png|icon-.*\\.png|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 };
