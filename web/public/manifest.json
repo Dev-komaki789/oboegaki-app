@@ -1,0 +1,23 @@
+{
+  "name": "おぼえがき",
+  "short_name": "おぼえがき",
+  "description": "会う直前の30秒で、前回の話を思い出す。",
+  "lang": "ja",
+  "start_url": "/people",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F7F6F3",
+  "theme_color": "#F7F6F3",
+
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    {
+      "src": "/icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
