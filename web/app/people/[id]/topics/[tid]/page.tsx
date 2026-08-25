@@ -84,7 +84,7 @@ export default async function TopicDetailPage({
   const base = `/people/${id}/topics/${tid}`;
 
   return (
-    <main className="mx-auto w-full max-w-[390px] px-5 pb-28 pt-8">
+    <main className="mx-auto w-full max-w-[430px] px-5 pb-28 pt-8">
       <Link
         href={`/people/${id}/topics`}
         replace
@@ -137,7 +137,7 @@ export default async function TopicDetailPage({
         </>
       )}
 
-      <h2 className="mt-8 text-name text-ink-primary">話した内容</h2>
+      <h2 className="mt-8 text-sub text-ink-secondary">話した内容</h2>
 
       {shown.length === 0 ? (
         <p className="mt-4 text-center text-body text-ink-secondary">
@@ -146,21 +146,22 @@ export default async function TopicDetailPage({
             : "内容の記録はまだありません。"}
         </p>
       ) : (
-        <ul className="mt-3 rounded-card border border-line-card bg-neutral-card px-4">
+        <ul className="mt-3 space-y-2">
           {shown.map((r) => (
-            <li key={r.id} className="border-b border-line-faint last:border-0">
+            <li key={r.id}>
               <Link
                 href={`/people/${id}/records/${r.id}`}
-                className="flex gap-3 py-4"
+                className="flex items-center gap-3 rounded-card border border-line-card bg-neutral-card px-4 py-4"
               >
                 <span className="w-[76px] shrink-0 text-caption text-ink-muted">
                   {format(parseISO(r.talkedAt), "yyyy/MM/dd")}
                 </span>
-                <span className="flex-1 text-body text-ink-primary">
+                <span className="min-w-0 flex-1 text-body text-ink-primary">
                   {r.content}
                 </span>
-                {/* 明細の数字は records.score をそのまま。控えめに、右端に小さく */}
-                <span className="shrink-0 text-caption text-ink-muted">
+                {/* 明細の数字は records.score をそのまま。話題のスコア（32px）
+                    より小さく、右端に。色は accent（モックアップ S-07） */}
+                <span className="shrink-0 text-name text-accent-500">
                   {r.score}
                 </span>
               </Link>
@@ -184,7 +185,7 @@ export default async function TopicDetailPage({
         </div>
       )}
 
-      <div className="fixed inset-x-0 bottom-0 mx-auto w-full max-w-[390px] px-5 pb-6">
+      <div className="fixed inset-x-0 bottom-0 mx-auto w-full max-w-[430px] px-5 pb-6">
         <Link
           href={`/people/${id}/record`}
           className="block w-full rounded-btn bg-ink-primary py-4 text-center text-body font-bold text-neutral-card"

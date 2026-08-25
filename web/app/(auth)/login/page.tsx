@@ -5,7 +5,7 @@ export const metadata: Metadata = { title: "ログイン｜おぼえがき" };
 
 export default function LoginPage() {
   return (
-    <main className="mx-auto flex min-h-dvh w-full max-w-[390px] flex-col justify-center px-6">
+    <main className="mx-auto flex min-h-dvh w-full max-w-[430px] flex-col justify-center px-6">
       {/* ロゴ：accent-500 地に白の「記」・角丸14（§9 S-01） */}
       <div className="flex size-[72px] items-center justify-center rounded-btn bg-accent-500">
         <span className="text-heading text-neutral-card">記</span>

@@ -113,7 +113,7 @@ export default async function PersonPage({
   }
 
   return (
-    <main className="mx-auto w-full max-w-[390px] px-5 pb-28 pt-8">
+    <main className="mx-auto w-full max-w-[430px] px-5 pb-28 pt-8">
       <header className="flex items-center justify-between">
         {/* 行き先が書いてあるリンクは、1つ戻るのではなくそこへ直接飛ぶ。
             replace なので往復しても履歴が伸びない */}
@@ -263,7 +263,7 @@ export default async function PersonPage({
         />
       )}
 
-      <div className="fixed inset-x-0 bottom-0 mx-auto w-full max-w-[390px] px-5 pb-6">
+      <div className="fixed inset-x-0 bottom-0 mx-auto w-full max-w-[430px] px-5 pb-6">
         <Link
           href={`/people/${person.id}/record`}
           prefetch={true}

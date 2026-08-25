@@ -87,7 +87,7 @@ export default async function TopicsPage({
     .slice(0, 3);
 
   return (
-    <main className="mx-auto w-full max-w-[390px] px-5 pb-28 pt-8">
+    <main className="mx-auto w-full max-w-[430px] px-5 pb-28 pt-8">
       <header className="flex items-center justify-between">
         <Link href="/people" replace className="text-action text-accent-500">
           お客さん一覧
@@ -183,7 +183,7 @@ export default async function TopicsPage({
         </ul>
       )}
 
-      <div className="fixed inset-x-0 bottom-0 mx-auto w-full max-w-[390px] px-5 pb-6">
+      <div className="fixed inset-x-0 bottom-0 mx-auto w-full max-w-[430px] px-5 pb-6">
         <Link
           href={`/people/${person.id}/record`}
           className="block w-full rounded-btn bg-ink-primary py-4 text-center text-body font-bold text-neutral-card"

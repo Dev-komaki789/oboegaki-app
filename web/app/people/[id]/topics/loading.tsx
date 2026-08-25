@@ -2,7 +2,7 @@ import { Bar, Card } from "@/components/Skeleton";
 
 export default function Loading() {
   return (
-    <main className="mx-auto w-full max-w-[390px] px-5 pt-8">
+    <main className="mx-auto w-full max-w-[430px] px-5 pt-8">
       <Bar className="h-5 w-24" />
       <Bar className="mt-4 h-12 w-full" />
       <Card className="mt-4 h-[300px] w-full rounded-full" />
