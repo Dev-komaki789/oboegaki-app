@@ -85,7 +85,12 @@ export default async function PeoplePage({
     <main className="mx-auto w-full max-w-[430px] px-5 pb-28 pt-8">
       <header className="flex items-baseline justify-between">
         <h1 className="text-title">お客さん</h1>
-        <span className="text-sub text-ink-secondary">{list.length}人</span>
+        <div className="flex items-baseline gap-4">
+          <span className="text-sub text-ink-secondary">{list.length}人</span>
+          <Link href="/settings" className="text-action text-accent-500">
+            設定
+          </Link>
+        </div>
       </header>
 
       {/* 窓は1つ。4項目を横断する。autoFocus は付けない（M-05） */}
