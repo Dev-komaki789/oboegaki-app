@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Zen_Kaku_Gothic_New } from "next/font/google";
 import "./globals.css";
+import DismissKeyboard from "@/components/DismissKeyboard";
 
 const zen = Zen_Kaku_Gothic_New({
   weight: ["400", "500", "700"],
@@ -49,6 +50,7 @@ export default function RootLayout({
         className={`${zen.variable} font-zen bg-neutral-bg text-ink-primary antialiased`}
       >
         {children}
+        <DismissKeyboard />
       </body>
     </html>
   );
