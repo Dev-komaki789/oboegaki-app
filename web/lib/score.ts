@@ -92,3 +92,19 @@ export function topicScoreUndecayed(records: Rec[]): number | null {
   const vals = [...keywordEmas(records).values()].map((v) => v.ema);
   return aggregate(vals);
 }
+
+/**
+ * キーワードごとの表示値（EMA × 時間減衰）。
+ * 話題詳細のチップの並びと濃淡に使う。
+ * 減衰は「そのキーワードの最終会話日」からかける（話題に一律1回ではない）
+ */
+export function keywordDisplayValues(
+  records: Rec[],
+  today: Date,
+): Map<string, number> {
+  const out = new Map<string, number>();
+  for (const [key, v] of keywordEmas(records)) {
+    out.set(key, v.ema * decay(days(v.last, today)));
+  }
+  return out;
+}
