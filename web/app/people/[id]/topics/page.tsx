@@ -13,24 +13,31 @@ export default async function TopicsPage({
   const { id } = await params;
   const supabase = await createClient();
 
-  const { data: person } = await supabase
-    .from("people")
-    .select("id, name, last_talked_at")
-    .eq("id", id)
-    .maybeSingle();
+  // 4本を同時に投げる。順に await すると往復が4回になる
+  const [
+    { data: person },
+    { data: topics },
+    { data: rawRecords },
+    { data: masters },
+  ] = await Promise.all([
+    supabase
+      .from("people")
+      .select("id, name, last_talked_at")
+      .eq("id", id)
+      .maybeSingle(),
+    // NG は除く（§9 S-06）。NG は情報タブのバナーで常時警告している
+    supabase
+      .from("topics")
+      .select("id, topic_master_id, last_talked_at, topic_masters(name)")
+      .eq("person_id", id)
+      .eq("is_ng", false),
+    supabase
+      .from("records")
+      .select("topic_id, keyword_id, score, talked_at")
+      .eq("person_id", id),
+    supabase.from("topic_masters").select("id, name, sort_order").order("sort_order"),
+  ]);
   if (!person) notFound();
-
-  // NG は除く（§9 S-06）。NG は情報タブのバナーで常時警告している
-  const { data: topics } = await supabase
-    .from("topics")
-    .select("id, topic_master_id, last_talked_at, topic_masters(name)")
-    .eq("person_id", id)
-    .eq("is_ng", false);
-
-  const { data: rawRecords } = await supabase
-    .from("records")
-    .select("topic_id, keyword_id, score, talked_at")
-    .eq("person_id", id);
 
   const byTopic = new Map<string, Rec[]>();
   for (const r of rawRecords ?? []) {
@@ -75,10 +82,6 @@ export default async function TopicsPage({
   const usedMasterIds = new Set(
     (topics ?? []).map((t) => t.topic_master_id as string),
   );
-  const { data: masters } = await supabase
-    .from("topic_masters")
-    .select("id, name, sort_order")
-    .order("sort_order");
   const untouched = (masters ?? [])
     .filter((m) => !usedMasterIds.has(m.id as string))
     .slice(0, 3);
@@ -145,6 +148,7 @@ export default async function TopicsPage({
               <li key={r.id}>
                 <Link
                   href={`/people/${person.id}/topics/${r.id}`}
+                  prefetch={true}
                   className="block rounded-card border border-line-card bg-neutral-card p-4"
                 >
                   <div className="flex items-baseline justify-between gap-3">

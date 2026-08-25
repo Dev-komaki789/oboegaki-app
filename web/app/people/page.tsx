@@ -105,6 +105,7 @@ export default async function PeoplePage({
               <li key={p.id}>
                 <Link
                   href={`/people/${p.id}`}
+                  prefetch={true}
                   className="flex gap-4 rounded-card border border-line-card bg-neutral-card p-4"
                 >
                   <div className="flex size-14 shrink-0 items-center justify-center rounded-btn bg-accent-500 text-header text-neutral-card">

@@ -29,21 +29,29 @@ export default async function PersonPage({
 
   const supabase = await createClient();
 
-  const { data: person } = await supabase
-    .from("people")
-    .select(
-      "id, name, name_kana, age_group, gender, appearance, company, position, last_talked_at",
-    )
-    .eq("id", id)
-    .maybeSingle();
+  // 3本を同時に投げる。順に await すると往復が3回になる
+  const [{ data: person }, { data: ngTopics }, { data: raw }] =
+    await Promise.all([
+      supabase
+        .from("people")
+        .select(
+          "id, name, name_kana, age_group, gender, appearance, company, position, last_talked_at",
+        )
+        .eq("id", id)
+        .maybeSingle(),
+      // NG話題。タブの外側に常時表示する（専用ページに隠すと見ずに踏む）
+      supabase
+        .from("topics")
+        .select("topic_masters(name)")
+        .eq("person_id", id)
+        .eq("is_ng", true),
+      supabase
+        .from("records")
+        .select("id, content, talked_at, topic_id, topics(topic_masters(name))")
+        .eq("person_id", id)
+        .order("talked_at", { ascending: false }),
+    ]);
   if (!person) notFound();
-
-  // NG話題。タブの外側に常時表示する（専用ページに隠すと見ずに踏む）
-  const { data: ngTopics } = await supabase
-    .from("topics")
-    .select("topic_masters(name)")
-    .eq("person_id", id)
-    .eq("is_ng", true);
 
   const ngNames = (ngTopics ?? [])
     .map(
@@ -51,12 +59,6 @@ export default async function PersonPage({
         (t.topic_masters as unknown as { name: string } | null)?.name ?? "",
     )
     .filter(Boolean);
-
-  const { data: raw } = await supabase
-    .from("records")
-    .select("id, content, talked_at, topic_id, topics(topic_masters(name))")
-    .eq("person_id", id)
-    .order("talked_at", { ascending: false });
 
   const records: RecordRow[] = (raw ?? []).map((r) => ({
     id: r.id as string,
@@ -156,6 +158,7 @@ export default async function PersonPage({
         </span>
         <Link
           href={`/people/${person.id}/topics`}
+          prefetch={true}
           className="flex-1 py-3 text-center text-action text-ink-secondary"
         >
           話題
@@ -275,6 +278,7 @@ export default async function PersonPage({
       <div className="fixed inset-x-0 bottom-0 mx-auto w-full max-w-[390px] px-5 pb-6">
         <Link
           href={`/people/${person.id}/record`}
+          prefetch={true}
           className="block w-full rounded-btn bg-ink-primary py-4 text-center text-body font-bold text-neutral-card"
         >
           ＋ 記録する

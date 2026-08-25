@@ -15,19 +15,17 @@ export default async function EditPersonPage({
   const { id } = await params;
   const supabase = await createClient();
 
-  const { data: person } = await supabase
-    .from("people")
-    .select(
-      "id, name, name_kana, age_group, gender, appearance, company, position",
-    )
-    .eq("id", id)
-    .maybeSingle();
+  const [{ data: person }, { data }] = await Promise.all([
+    supabase
+      .from("people")
+      .select(
+        "id, name, name_kana, age_group, gender, appearance, company, position",
+      )
+      .eq("id", id)
+      .maybeSingle(),
+    supabase.from("people").select("company").not("company", "is", null),
+  ]);
   if (!person) notFound();
-
-  const { data } = await supabase
-    .from("people")
-    .select("company")
-    .not("company", "is", null);
   const companies = [
     ...new Set((data ?? []).map((r) => r.company as string)),
   ].sort();

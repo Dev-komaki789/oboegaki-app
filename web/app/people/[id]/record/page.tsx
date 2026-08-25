@@ -13,24 +13,22 @@ export default async function RecordPage({
   const { id } = await params;
   const supabase = await createClient();
 
-  const { data: person } = await supabase
-    .from("people")
-    .select("id, name")
-    .eq("id", id)
-    .maybeSingle();
+  // 4本を同時に投げる。順に await すると往復が4回になる
+  const [
+    { data: person },
+    { data: masters },
+    { data: topics },
+    { data: keywords },
+  ] = await Promise.all([
+    supabase.from("people").select("id, name").eq("id", id).maybeSingle(),
+    // 話題マスタ全件。初期マスタ（user_id IS NULL）＋ 自分で作ったものを RLS が返す
+    supabase.from("topic_masters").select("id, name, sort_order").order("sort_order"),
+    // このお客さんとの実績。records(count) で子テーブルの件数を一緒に取る
+    supabase.from("topics").select("topic_master_id, records(count)").eq("person_id", id),
+    // キーワードは全顧客横断・使用回数順（§9 S-08）
+    supabase.from("keywords").select("id, name, records(count)"),
+  ]);
   if (!person) notFound();
-
-  // 話題マスタ全件。初期マスタ（user_id IS NULL）＋ 自分で作ったものを RLS が返す
-  const { data: masters } = await supabase
-    .from("topic_masters")
-    .select("id, name, sort_order")
-    .order("sort_order");
-
-  // このお客さんとの実績。records(count) で子テーブルの件数を一緒に取る
-  const { data: topics } = await supabase
-    .from("topics")
-    .select("topic_master_id, records(count)")
-    .eq("person_id", id);
 
   const counts = new Map<string, number>();
   for (const t of topics ?? []) {
@@ -46,11 +44,6 @@ export default async function RecordPage({
     if (ca !== cb) return cb - ca;
     return a.sort_order - b.sort_order;
   });
-
-  // キーワードは全顧客横断・使用回数順（§9 S-08）
-  const { data: keywords } = await supabase
-    .from("keywords")
-    .select("id, name, records(count)");
 
   const keywordOptions = (keywords ?? [])
     .map((k) => ({

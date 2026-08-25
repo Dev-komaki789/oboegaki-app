@@ -24,24 +24,25 @@ export default async function TopicDetailPage({
   const { k: filterKeyword, all } = await searchParams;
   const supabase = await createClient();
 
-  // person_id も条件に入れる。URL を書き換えて他人の話題を開けないように
-  const { data: topic } = await supabase
-    .from("topics")
-    .select("id, person_id, last_talked_at, topic_masters(name)")
-    .eq("id", tid)
-    .eq("person_id", id)
-    .maybeSingle();
+  const [{ data: topic }, { data: raw }] = await Promise.all([
+    // person_id も条件に入れる。URL を書き換えて他人の話題を開けないように
+    supabase
+      .from("topics")
+      .select("id, person_id, last_talked_at, topic_masters(name)")
+      .eq("id", tid)
+      .eq("person_id", id)
+      .maybeSingle(),
+    supabase
+      .from("records")
+      .select("id, keyword_id, score, content, talked_at, keywords(name)")
+      .eq("topic_id", tid)
+      .order("talked_at", { ascending: false }),
+  ]);
   if (!topic) notFound();
 
   const topicName =
     (topic.topic_masters as unknown as { name: string } | null)?.name ??
     "（不明）";
-
-  const { data: raw } = await supabase
-    .from("records")
-    .select("id, keyword_id, score, content, talked_at, keywords(name)")
-    .eq("topic_id", tid)
-    .order("talked_at", { ascending: false });
 
   const rows = (raw ?? []).map((r) => ({
     id: r.id as string,
