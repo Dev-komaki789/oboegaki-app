@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { format, parseISO } from "date-fns";
 import { createClient } from "@/lib/supabase/server";
 import { topicScore, type Rec } from "@/lib/score";
+import BackLink from "@/components/BackLink";
 
 export default async function TopicsPage({
   params,
@@ -89,9 +90,9 @@ export default async function TopicsPage({
   return (
     <main className="mx-auto w-full max-w-[430px] px-5 pb-28 pt-8">
       <header className="flex items-center justify-between">
-        <Link href="/people" replace className="text-action text-accent-500">
+        <BackLink fallback="/people" className="text-action text-accent-500">
           お客さん一覧
-        </Link>
+        </BackLink>
         <span className="text-sub text-ink-secondary">{person.name}</span>
       </header>
 

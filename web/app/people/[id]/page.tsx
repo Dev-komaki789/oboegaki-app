@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import ModeTabs from "@/components/ModeTabs";
+import BackLink from "@/components/BackLink";
 import { differenceInCalendarDays, format, parseISO } from "date-fns";
 
 type RecordRow = {
@@ -115,11 +116,13 @@ export default async function PersonPage({
   return (
     <main className="mx-auto w-full max-w-[430px] px-5 pb-28 pt-8">
       <header className="flex items-center justify-between">
-        {/* 行き先が書いてあるリンクは、1つ戻るのではなくそこへ直接飛ぶ。
-            replace なので往復しても履歴が伸びない */}
-        <Link href="/people" replace className="text-action text-accent-500">
+        {/* 履歴を実際に縮められるのは pop（router.back）だけ。
+            replace は一番上を差し替えるだけなので、往復するたびに
+            スタックが伸びていく。
+            タブを replace にしてあるので、pop を辿れば必ず一覧に着く */}
+        <BackLink fallback="/people" className="text-action text-accent-500">
           お客さん一覧
-        </Link>
+        </BackLink>
         <Link
           href={`/people/${person.id}/edit`}
           className="text-action text-accent-500"
