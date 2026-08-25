@@ -1,9 +1,20 @@
 "use client";
 
 import { useActionState } from "react";
-import { createPerson, type PersonState } from "./actions";
+import type { PersonState } from "@/lib/types";
 
 const initial: PersonState = {};
+
+export type PersonDefaults = {
+  id: string;
+  name: string;
+  name_kana: string | null;
+  age_group: string | null;
+  gender: string | null;
+  appearance: string | null;
+  company: string | null;
+  position: string | null;
+};
 
 const AGE_GROUPS = ["10代", "20代", "30代", "40代", "50代", "60代", "70代以上"];
 const GENDERS = ["女性", "男性", "その他"];
@@ -11,11 +22,22 @@ const GENDERS = ["女性", "男性", "その他"];
 const field =
   "mt-2 block w-full rounded-input border border-line-form bg-neutral-card px-4 py-4 text-body text-ink-primary placeholder:text-ink-placeholder focus:border-accent-500 focus:outline-none";
 
-export default function PersonForm({ companies }: { companies: string[] }) {
-  const [state, formAction, pending] = useActionState(createPerson, initial);
+export default function PersonForm({
+  companies,
+  action,
+  submitLabel = "登録する",
+  person,
+}: {
+  companies: string[];
+  action: (prev: PersonState, formData: FormData) => Promise<PersonState>;
+  submitLabel?: string;
+  person?: PersonDefaults;
+}) {
+  const [state, formAction, pending] = useActionState(action, initial);
 
   return (
     <form action={formAction} className="pb-28">
+      {person && <input type="hidden" name="id" value={person.id} />}
       {/* ── 必須 ───────────────────────────── */}
       <div className="mt-6">
         <div className="flex items-center gap-2">
@@ -30,6 +52,7 @@ export default function PersonForm({ companies }: { companies: string[] }) {
           id="name"
           name="name"
           required
+          defaultValue={person?.name ?? ""}
           placeholder="田中 みか"
           className={field}
         />
@@ -57,6 +80,7 @@ export default function PersonForm({ companies }: { companies: string[] }) {
         <input
           id="name_kana"
           name="name_kana"
+          defaultValue={person?.name_kana ?? ""}
           placeholder="たなか みか"
           className={field}
         />
@@ -71,7 +95,7 @@ export default function PersonForm({ companies }: { companies: string[] }) {
           <select
             id="age_group"
             name="age_group"
-            defaultValue=""
+            defaultValue={person?.age_group ?? ""}
             className={field}
           >
             <option value="">未選択</option>
@@ -86,7 +110,12 @@ export default function PersonForm({ companies }: { companies: string[] }) {
           <label htmlFor="gender" className="text-name text-ink-primary">
             性別
           </label>
-          <select id="gender" name="gender" defaultValue="" className={field}>
+          <select
+            id="gender"
+            name="gender"
+            defaultValue={person?.gender ?? ""}
+            className={field}
+          >
             <option value="">未選択</option>
             {GENDERS.map((v) => (
               <option key={v} value={v}>
@@ -105,6 +134,7 @@ export default function PersonForm({ companies }: { companies: string[] }) {
         <input
           id="appearance"
           name="appearance"
+          defaultValue={person?.appearance ?? ""}
           placeholder="ショートボブ、眼鏡"
           className={field}
         />
@@ -127,6 +157,7 @@ export default function PersonForm({ companies }: { companies: string[] }) {
             id="company"
             name="company"
             list="company-options"
+            defaultValue={person?.company ?? ""}
             className={field}
           />
           <datalist id="company-options">
@@ -139,7 +170,12 @@ export default function PersonForm({ companies }: { companies: string[] }) {
           <label htmlFor="position" className="text-name text-ink-primary">
             役職
           </label>
-          <input id="position" name="position" className={field} />
+          <input
+            id="position"
+            name="position"
+            defaultValue={person?.position ?? ""}
+            className={field}
+          />
         </div>
       </div>
 
@@ -159,7 +195,7 @@ export default function PersonForm({ companies }: { companies: string[] }) {
           disabled={pending}
           className="w-full rounded-btn bg-accent-500 py-4 text-body font-bold text-neutral-card disabled:opacity-60"
         >
-          {pending ? "登録中…" : "登録する"}
+          {pending ? "保存中…" : submitLabel}
         </button>
       </div>
     </form>

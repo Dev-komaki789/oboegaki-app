@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import PersonForm from "./PersonForm";
+import PersonForm from "@/components/PersonForm";
+import { createPerson } from "./actions";
 
 export const metadata: Metadata = { title: "新しいお客さん｜おぼえがき" };
 
@@ -27,7 +28,7 @@ export default async function NewPersonPage() {
         <h1 className="text-header text-ink-primary">新しいお客さん</h1>
       </header>
 
-      <PersonForm companies={companies} />
+      <PersonForm companies={companies} action={createPerson} />
     </main>
   );
 }
