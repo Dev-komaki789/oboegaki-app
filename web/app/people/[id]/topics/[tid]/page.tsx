@@ -156,7 +156,7 @@ export default async function TopicDetailPage({
                 <span className="w-[76px] shrink-0 text-caption text-ink-muted">
                   {format(parseISO(r.talkedAt), "yyyy/MM/dd")}
                 </span>
-                <span className="min-w-0 flex-1 text-body text-ink-primary">
+                <span className="min-w-0 flex-1 whitespace-pre-wrap text-body text-ink-primary">
                   {r.content}
                 </span>
                 {/* 明細の数字は records.score をそのまま。話題のスコア（32px）

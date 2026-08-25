@@ -218,7 +218,9 @@ export default async function PersonPage({
                       key={r.id}
                       className="flex items-baseline justify-between gap-3 border-b border-line-faint py-3 last:border-0 last:pb-0"
                     >
-                      <span className="text-body text-ink-primary">{r.content}</span>
+                      <span className="whitespace-pre-wrap text-body text-ink-primary">
+                        {r.content}
+                      </span>
                       <span className="shrink-0 text-caption text-ink-muted">
                         {format(parseISO(r.talked_at), "yyyy/MM/dd")}
                       </span>
@@ -254,7 +256,9 @@ export default async function PersonPage({
                       )}
                     </div>
                     {r.content ? (
-                      <p className="mt-1 text-body text-ink-primary">{r.content}</p>
+                      <p className="mt-1 whitespace-pre-wrap text-body text-ink-primary">
+                        {r.content}
+                      </p>
                     ) : (
                       <p className="mt-1 text-sub text-ink-muted">（内容の記録なし）</p>
                     )}
