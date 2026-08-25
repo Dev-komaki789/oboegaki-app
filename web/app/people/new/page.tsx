@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import PersonForm from "@/components/PersonForm";
 import { createPerson } from "./actions";
+import BackLink from "@/components/BackLink";
 
 export const metadata: Metadata = { title: "新しいお客さん｜おぼえがき" };
 
@@ -22,9 +22,9 @@ export default async function NewPersonPage() {
   return (
     <main className="mx-auto w-full max-w-[390px] px-5 pt-8">
       <header className="flex items-center gap-4 border-b border-line-form pb-5">
-        <Link href="/people" className="text-action text-accent-500">
+        <BackLink fallback="/people" className="text-action text-accent-500">
           戻る
-        </Link>
+        </BackLink>
         <h1 className="text-header text-ink-primary">新しいお客さん</h1>
       </header>
 

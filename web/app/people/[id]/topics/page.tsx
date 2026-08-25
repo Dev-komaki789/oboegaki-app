@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { format, parseISO } from "date-fns";
 import { createClient } from "@/lib/supabase/server";
 import { topicScore, type Rec } from "@/lib/score";
+import BackLink from "@/components/BackLink";
 
 export default async function TopicsPage({
   params,
@@ -89,15 +90,17 @@ export default async function TopicsPage({
   return (
     <main className="mx-auto w-full max-w-[390px] px-5 pb-28 pt-8">
       <header className="flex items-center justify-between">
-        <Link href="/people" className="text-action text-accent-500">
+        <BackLink fallback="/people" className="text-action text-accent-500">
           お客さん一覧
-        </Link>
+        </BackLink>
         <span className="text-sub text-ink-secondary">{person.name}</span>
       </header>
 
       <div className="mt-4 flex rounded-input bg-neutral-chip p-1">
         <Link
           href={`/people/${person.id}`}
+          replace
+          prefetch={true}
           className="flex-1 py-3 text-center text-action text-ink-secondary"
         >
           お客さん情報

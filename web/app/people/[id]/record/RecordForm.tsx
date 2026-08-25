@@ -1,9 +1,9 @@
 "use client";
 
 import { useActionState, useEffect, useRef, useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { saveRecord, type RecordState } from "./actions";
+import BackLink from "@/components/BackLink";
 
 const initial: RecordState = {};
 
@@ -76,12 +76,12 @@ export default function RecordForm({
 
       <header className="flex items-center justify-between border-b border-line-form pb-5">
         <div className="flex items-center gap-4">
-          <Link
-            href={`/people/${personId}`}
+          <BackLink
+            fallback={`/people/${personId}`}
             className="text-action text-accent-500"
           >
             閉じる
-          </Link>
+          </BackLink>
           <h1 className="text-header text-ink-primary">記録する</h1>
         </div>
         <span className="text-sub text-ink-secondary">{personName}</span>

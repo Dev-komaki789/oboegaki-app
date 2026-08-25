@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import ModeTabs from "@/components/ModeTabs";
+import BackLink from "@/components/BackLink";
 import { differenceInCalendarDays, format, parseISO } from "date-fns";
 
 type RecordRow = {
@@ -115,9 +116,9 @@ export default async function PersonPage({
   return (
     <main className="mx-auto w-full max-w-[390px] px-5 pb-28 pt-8">
       <header className="flex items-center justify-between">
-        <Link href="/people" className="text-action text-accent-500">
+        <BackLink fallback="/people" className="text-action text-accent-500">
           お客さん一覧
-        </Link>
+        </BackLink>
         <Link
           href={`/people/${person.id}/edit`}
           className="text-action text-accent-500"
@@ -159,6 +160,7 @@ export default async function PersonPage({
         </span>
         <Link
           href={`/people/${person.id}/topics`}
+          replace
           prefetch={true}
           className="flex-1 py-3 text-center text-action text-ink-secondary"
         >

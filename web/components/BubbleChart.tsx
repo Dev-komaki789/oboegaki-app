@@ -109,6 +109,9 @@ export default function BubbleChart({
             className="cursor-pointer"
             onClick={() => router.push(`/people/${personId}/topics/${n.id}`)}
           >
+            {/* 見える円が小さくても押せるようにする透明な当たり判定。
+                fill="none" だとクリックを拾わないので transparent にする */}
+            <circle r={Math.max(n.r, HIT_R)} fill="transparent" />
             <circle r={n.r} fill={c.bg} />
             {n.r >= 20 && (
               <text
