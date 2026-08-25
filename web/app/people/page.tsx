@@ -111,28 +111,49 @@ export default async function PeoplePage({
                 <Link
                   href={`/people/${p.id}`}
                   prefetch={true}
-                  className="flex gap-4 rounded-card border border-line-card bg-neutral-card p-4"
+                  className="block rounded-card border border-line-card bg-neutral-card p-4"
                 >
-                  <div className="flex size-14 shrink-0 items-center justify-center rounded-btn bg-accent-500 text-header text-neutral-card">
-                    {p.name.trim().charAt(0)}
-                  </div>
+                  <div className="flex gap-4">
+                    <div className="flex size-14 shrink-0 items-center justify-center rounded-btn bg-accent-500 text-header text-neutral-card">
+                      {p.name.trim().charAt(0)}
+                    </div>
 
-                  <div className="min-w-0 flex-1">
-                    {/* よみがなは名前の上に置く（ふりがなと同じ並び）。
+                    <div className="min-w-0 flex-1">
+                      {/* よみがなは名前の上に置く（ふりがなと同じ並び）。
                         モックアップは横並びだが、それだと名前に使える幅が
                         176px ほどしかなく「中村 あゆみ」程度で省略されてしまう。
                         上下に分ければ名前が横幅を独占できる */}
-                    {p.name_kana && (
-                      <p className="truncate text-caption text-ink-secondary">
-                        {p.name_kana}
+                      {p.name_kana && (
+                        <p className="truncate text-caption text-ink-secondary">
+                          {p.name_kana}
+                        </p>
+                      )}
+                      <p className="truncate text-name text-ink-primary">
+                        {p.name}
                       </p>
-                    )}
-                    <p className="truncate text-name text-ink-primary">
-                      {p.name}
-                    </p>
+                    </div>
 
-                    {/*
-                    バッジは最大2行（§9 S-02）。
+                    <div className="shrink-0 text-right">
+                      <div className="text-name font-bold text-accent-500">
+                        {sinceLabel(p.last_talked_at)}
+                      </div>
+                      {p.last_talked_at && (
+                        <div className="mt-1 text-caption text-ink-muted">
+                          前回{" "}
+                          {format(parseISO(p.last_talked_at), "yyyy/MM/dd")}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/*
+                    バッジは名前の列の外に出し、カードの右端まで使う。
+                    よみがなを上に移して3行になったぶん、右カラム（3日前/前回）は
+                    2行で終わり、バッジの右隣が丸ごと空いていた。
+                    列の中に置いたままだと 176px しか使えないが、外に出すと 286px 使える。
+                    左は pl-[72px] でアバターぶん下げ、名前と揃える。
+
+                    最大2行（§9 S-02）:
                       1個の高さ = py-1(8px) + leading-5(20px) = 28px
                       2行分     = 28 * 2 + gap-2(8px)         = 64px = max-h-16
                     3行目は 72px の位置から始まるので枠の完全に外。半分見えることはない。
@@ -140,9 +161,9 @@ export default async function PeoplePage({
 
                     ※ 仕様の「2行目にも収まらない場合は +N」は未実装。
                       文字幅をサーバー側で見積もる必要があり、割に合わないと判断した。
-                      3行目以降は静かに隠れる。
                   */}
-                    <div className="mt-2 flex max-h-16 flex-wrap gap-2 overflow-hidden">
+                  {badges.length > 0 && (
+                    <div className="mt-2 flex max-h-16 flex-wrap gap-2 overflow-hidden pl-[72px]">
                       {badges.map((b, i) => (
                         <span
                           key={i}
@@ -152,18 +173,7 @@ export default async function PeoplePage({
                         </span>
                       ))}
                     </div>
-                  </div>
-
-                  <div className="shrink-0 text-right">
-                    <div className="text-name font-bold text-accent-500">
-                      {sinceLabel(p.last_talked_at)}
-                    </div>
-                    {p.last_talked_at && (
-                      <div className="mt-1 text-caption text-ink-muted">
-                        前回 {format(parseISO(p.last_talked_at), "yyyy/MM/dd")}
-                      </div>
-                    )}
-                  </div>
+                  )}
                 </Link>
               </li>
             );
