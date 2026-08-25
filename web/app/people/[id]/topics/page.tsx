@@ -1,3 +1,4 @@
+import BubbleChart from "@/components/BubbleChart";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { format, parseISO } from "date-fns";
@@ -59,6 +60,16 @@ export default async function TopicsPage({
     .sort((a, b) => b.score - a.score);
 
   const max = rows[0]?.score ?? 0;
+  // バブルは実線10個で固定。表示値で再ソートしたあとの上位10件（§9 S-06）
+  const bubbles = rows.slice(0, 10).map((r) => ({
+    id: r.id,
+    name: r.name,
+    score: r.score,
+    lastLabel: r.lastTalkedAt
+      ? format(parseISO(r.lastTalkedAt), "yyyy/MM/dd")
+      : null,
+    past: !!(r.lastTalkedAt && r.lastTalkedAt === person.last_talked_at),
+  }));
 
   // まだ話していない話題（§9 S-06）
   const usedMasterIds = new Set(
@@ -97,7 +108,7 @@ export default async function TopicsPage({
         大きいほど盛り上がった　薄いグレー＝前回話した
       </p>
 
-      {/* TODO(段階③): ここにバブルチャートを足す */}
+      <BubbleChart personId={person.id} items={bubbles} />
 
       {untouched.length > 0 && (
         <div className="mt-5 flex flex-wrap items-center gap-2">
