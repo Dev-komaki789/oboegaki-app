@@ -148,20 +148,22 @@ export default async function TopicDetailPage({
       ) : (
         <ul className="mt-3 rounded-card border border-line-card bg-neutral-card px-4">
           {shown.map((r) => (
-            <li
-              key={r.id}
-              className="flex gap-3 border-b border-line-faint py-4 last:border-0"
-            >
-              <span className="w-[76px] shrink-0 text-caption text-ink-muted">
-                {format(parseISO(r.talkedAt), "yyyy/MM/dd")}
-              </span>
-              <span className="flex-1 text-body text-ink-primary">
-                {r.content}
-              </span>
-              {/* 明細の数字は records.score をそのまま。控えめに、右端に小さく */}
-              <span className="shrink-0 text-caption text-ink-muted">
-                {r.score}
-              </span>
+            <li key={r.id} className="border-b border-line-faint last:border-0">
+              <Link
+                href={`/people/${id}/records/${r.id}`}
+                className="flex gap-3 py-4"
+              >
+                <span className="w-[76px] shrink-0 text-caption text-ink-muted">
+                  {format(parseISO(r.talkedAt), "yyyy/MM/dd")}
+                </span>
+                <span className="flex-1 text-body text-ink-primary">
+                  {r.content}
+                </span>
+                {/* 明細の数字は records.score をそのまま。控えめに、右端に小さく */}
+                <span className="shrink-0 text-caption text-ink-muted">
+                  {r.score}
+                </span>
+              </Link>
             </li>
           ))}
         </ul>

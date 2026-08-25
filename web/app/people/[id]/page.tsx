@@ -236,7 +236,12 @@ export default async function PersonPage({
                     <span className="absolute top-2 size-2 rounded-full bg-accent-300" />
                     <span className="w-px flex-1 bg-line-form" />
                   </div>
-                  <div className="mb-3 flex-1 rounded-card border border-line-card bg-neutral-card p-4">
+                  {/* カードごと修正画面への入口。内容が空の記録は話題別タブに
+                      出ないので、時系列からしか辿れない */}
+                  <Link
+                    href={`/people/${person.id}/records/${r.id}`}
+                    className="mb-3 block flex-1 rounded-card border border-line-card bg-neutral-card p-4"
+                  >
                     <div className="flex items-center gap-2">
                       <span className="text-label text-accent-500">{r.topicName}</span>
                       {r.talked_at === latestVisit && (
@@ -245,10 +250,12 @@ export default async function PersonPage({
                         </span>
                       )}
                     </div>
-                    {r.content && (
+                    {r.content ? (
                       <p className="mt-1 text-body text-ink-primary">{r.content}</p>
+                    ) : (
+                      <p className="mt-1 text-sub text-ink-muted">（内容の記録なし）</p>
                     )}
-                  </div>
+                  </Link>
                 </li>
               ))}
             </ol>
