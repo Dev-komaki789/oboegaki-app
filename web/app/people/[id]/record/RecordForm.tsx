@@ -250,6 +250,27 @@ export default function RecordForm({
             [&::-moz-range-thumb]:size-9 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:border-2 [&::-moz-range-thumb]:border-accent-500 [&::-moz-range-thumb]:bg-neutral-card"
         />
 
+        {/* 帯をタップすると値が飛ぶ（range の標準挙動で防げない）。
+            1点ずつ直せる手段を並べておく。当たり判定は44px（M-06） */}
+        <div className="mt-2 flex items-center justify-center gap-3">
+          <button
+            type="button"
+            onClick={() => setScore((v) => Math.max(0, v - 1))}
+            className="size-11 rounded-full border border-line-card bg-neutral-card text-body text-ink-primary"
+            aria-label="1つ下げる"
+          >
+            −
+          </button>
+          <button
+            type="button"
+            onClick={() => setScore((v) => Math.min(100, v + 1))}
+            className="size-11 rounded-full border border-line-card bg-neutral-card text-body text-ink-primary"
+            aria-label="1つ上げる"
+          >
+            ＋
+          </button>
+        </div>
+
         <div className="mt-1 flex justify-between text-sub text-ink-muted">
           <span>いまいち</span>
           <span>普通</span>
