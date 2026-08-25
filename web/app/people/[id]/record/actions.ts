@@ -1,6 +1,6 @@
 "use server";
 
-import { redirect } from "next/navigation";
+import { redirect, RedirectType } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { format, parseISO } from "date-fns";
 import { createClient } from "@/lib/supabase/server";
@@ -171,5 +171,5 @@ export async function saveRecord(
   // 「保存して、次を書く」は同じ画面に留まる（§6）
   if (intent === "next") return { savedAt: Date.now() };
 
-  redirect(`/people/${personId}`);
+  redirect(`/people/${personId}`, RedirectType.replace);
 }

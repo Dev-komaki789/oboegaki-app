@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 import { format, parseISO } from "date-fns";
 import { createClient } from "@/lib/supabase/server";
 import { keywordDisplayValues, topicScore, NONE, type Rec } from "@/lib/score";
-import BackLink from "@/components/BackLink";
 
 /** 濃淡だけで順位を示す。数字は出さない（§9 S-07・判断15）
  *  文字色はコントラスト実測（開発ログ 05）に従う。白は bubble-4 だけ */
@@ -86,12 +85,13 @@ export default async function TopicDetailPage({
 
   return (
     <main className="mx-auto w-full max-w-[390px] px-5 pb-28 pt-8">
-      <BackLink
-        fallback={`/people/${id}/topics`}
+      <Link
+        href={`/people/${id}/topics`}
+        replace
         className="text-action text-accent-500"
       >
         話題に戻る
-      </BackLink>
+      </Link>
 
       <div className="mt-4 flex items-end justify-between gap-4">
         <div className="min-w-0">

@@ -2,7 +2,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import ModeTabs from "@/components/ModeTabs";
-import BackLink from "@/components/BackLink";
 import { differenceInCalendarDays, format, parseISO } from "date-fns";
 
 type RecordRow = {
@@ -116,9 +115,11 @@ export default async function PersonPage({
   return (
     <main className="mx-auto w-full max-w-[390px] px-5 pb-28 pt-8">
       <header className="flex items-center justify-between">
-        <BackLink fallback="/people" className="text-action text-accent-500">
+        {/* 行き先が書いてあるリンクは、1つ戻るのではなくそこへ直接飛ぶ。
+            replace なので往復しても履歴が伸びない */}
+        <Link href="/people" replace className="text-action text-accent-500">
           お客さん一覧
-        </BackLink>
+        </Link>
         <Link
           href={`/people/${person.id}/edit`}
           className="text-action text-accent-500"

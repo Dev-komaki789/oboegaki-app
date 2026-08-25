@@ -1,6 +1,6 @@
 "use server";
 
-import { redirect } from "next/navigation";
+import { redirect, RedirectType } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import type { PersonState } from "@/lib/types";
@@ -40,7 +40,7 @@ export async function updatePerson(
 
   revalidatePath("/people");
   revalidatePath(`/people/${id}`);
-  redirect(`/people/${id}`);
+  redirect(`/people/${id}`, RedirectType.replace);
 }
 
 export async function deletePerson(formData: FormData): Promise<void> {
@@ -52,5 +52,5 @@ export async function deletePerson(formData: FormData): Promise<void> {
   await supabase.from("people").delete().eq("id", id);
 
   revalidatePath("/people");
-  redirect("/people");
+  redirect("/people", RedirectType.replace);
 }
