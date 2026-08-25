@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { differenceInCalendarDays, format, parseISO } from "date-fns";
 import SearchBox from "./SearchBox";
@@ -157,9 +158,12 @@ export default async function PeoplePage({
       )}
 
       <div className="fixed inset-x-0 bottom-0 mx-auto w-full max-w-[390px] px-5 pb-6">
-        <button className="w-full rounded-btn bg-ink-primary py-4 text-body font-bold text-neutral-card">
+        <Link
+          href="/people/new"
+          className="block w-full rounded-btn bg-ink-primary py-4 text-center text-body font-bold text-neutral-card"
+        >
           ＋ 新しいお客さん
-        </button>
+        </Link>
       </div>
     </main>
   );
