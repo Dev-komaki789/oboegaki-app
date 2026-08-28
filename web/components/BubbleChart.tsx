@@ -76,9 +76,9 @@ export default function BubbleChart({
     const data: Node[] = items.map((i, idx) => ({
       ...i,
       r: Math.max(MIN_R, radius(i.score)),
-      // 泡ごとに周期と開始位置をずらす。揃うと機械的に見える
-      dur: 4 + (idx % 5) * 0.5,
-      delay: -(idx % 7) * 0.7,
+      // 泡ごとに周期と開始位置をずらす。揃うと一斉に脈打って見える
+      dur: 9 + (idx % 5) * 1.2,
+      delay: -(idx % 7) * 1.9,
 
       // 初期位置を円周上にばらしておくと、まとまるまでが速い
       x: W / 2 + Math.cos((idx / items.length) * Math.PI * 2) * 60,
