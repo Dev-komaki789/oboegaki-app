@@ -79,7 +79,6 @@ export default async function TopicsPage({
     lastLabel: r.lastTalkedAt
       ? format(parseISO(r.lastTalkedAt), "yyyy/MM/dd")
       : null,
-    past: !!(r.lastTalkedAt && r.lastTalkedAt === person.last_talked_at),
   }));
 
   // まだ話していない話題（§9 S-06）
@@ -111,9 +110,7 @@ export default async function TopicsPage({
         </span>
       </div>
 
-      <p className="mt-4 text-sub text-ink-muted">
-        大きいほど盛り上がった　枠つき＝前回話した
-      </p>
+      <p className="mt-4 text-sub text-ink-muted">大きいほど盛り上がった</p>
 
       <BubbleChart personId={person.id} items={bubbles} />
 
@@ -144,50 +141,35 @@ export default async function TopicsPage({
         </p>
       ) : (
         <ul className="mt-3 space-y-2">
-          {rows.map((r) => {
-            const past = !!(
-              r.lastTalkedAt && r.lastTalkedAt === person.last_talked_at
-            );
-            return (
-              <li key={r.id}>
-                <Link
-                  href={`/people/${person.id}/topics/${r.id}`}
-                  prefetch={true}
-                  className="block rounded-card border border-line-card bg-neutral-card p-4"
-                >
-                  <div className="flex items-baseline justify-between gap-3">
-                    <span className="text-name text-ink-primary">{r.name}</span>
-                    <span className="text-name font-bold text-accent-500">
-                      {Math.round(r.score)}
-                    </span>
+          {rows.map((r) => (
+            <li key={r.id}>
+              <Link
+                href={`/people/${person.id}/topics/${r.id}`}
+                prefetch={true}
+                className="block rounded-card border border-line-card bg-neutral-card p-4"
+              >
+                <div className="flex items-baseline justify-between gap-3">
+                  <span className="text-name text-ink-primary">{r.name}</span>
+                  <span className="text-name font-bold text-accent-500">
+                    {Math.round(r.score)}
+                  </span>
+                </div>
+                <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-neutral-chip">
+                  <div
+                    className="h-full rounded-full bg-accent-500"
+                    style={{
+                      width: `${max > 0 ? (r.score / max) * 100 : 0}%`,
+                    }}
+                  />
+                </div>
+                {r.lastTalkedAt && (
+                  <div className="mt-2 text-caption text-ink-muted">
+                    前回 {format(parseISO(r.lastTalkedAt), "yyyy/MM/dd")}
                   </div>
-                  <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-neutral-chip">
-                    <div
-                      // バーの色は点数を表す。前回話したかどうかは
-                      // 下のバッジで示す（バブルと同じ考え方）
-                      className="h-full rounded-full bg-accent-500"
-                      style={{
-                        width: `${max > 0 ? (r.score / max) * 100 : 0}%`,
-                      }}
-                    />
-                  </div>
-                  {r.lastTalkedAt && (
-                    <div className="mt-2 flex items-center gap-2 text-caption text-ink-muted">
-                      <span>
-                        前回 {format(parseISO(r.lastTalkedAt), "yyyy/MM/dd")}
-                      </span>
-                      {/* バブルの枠と同じ「輪郭＝前回話した」で揃える */}
-                      {past && (
-                        <span className="rounded-badge border border-accent-border px-2 py-0.5 text-accent-ink">
-                          前回話した
-                        </span>
-                      )}
-                    </div>
-                  )}
-                </Link>
-              </li>
-            );
-          })}
+                )}
+              </Link>
+            </li>
+          ))}
         </ul>
       )}
 

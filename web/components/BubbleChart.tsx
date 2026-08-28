@@ -16,14 +16,14 @@ export type BubbleItem = {
   name: string;
   score: number;
   lastLabel: string | null;
-  past: boolean;
 };
 
-type Node = SimulationNodeDatum & BubbleItem & {
-  r: number;
-  dur: number;
-  delay: number;
-};
+type Node = SimulationNodeDatum &
+  BubbleItem & {
+    r: number;
+    dur: number;
+    delay: number;
+  };
 
 const W = 350;
 const H = 340;
@@ -34,10 +34,10 @@ const MAX_R = 64;
 /**
  * 色は表示値の4段階。文字色はコントラスト実測（開発ログ 05）に従う。
  *
- * ★ 「前回話した」も塗りは点数どおりにする。
- *   §9 は bubble-past（薄いグレー）で塗りつぶし「目立たせない」設計だったが、
- *   それだと前回話した話題が何点だったか読めなくなる。
- *   目印は枠に持たせ、塗りは点数の情報を保つ。
+ * ★ §9 は「前回話した」を bubble-past（薄いグレー）で塗りつぶす設計だったが、
+ *   採用していない。塗りつぶすと点数が読めなくなるうえ、色や枠で示しても
+ *   凡例を読まないと意味が伝わらない。泡の中に最終会話日が出ているので、
+ *   それで足りる。
  */
 function fill(item: BubbleItem) {
   if (item.score < 40)
@@ -113,10 +113,7 @@ export default function BubbleChart({
     >
       {nodes.map((n) => {
         const c = fill(n);
-        // 前回話した泡は、日付ではなく「前回話した」と書く。
-        // 凡例を読まなくても意味が分かるようにするため
-        const sub = n.past ? "前回話した" : n.lastLabel;
-        const showSub = n.r >= 34 && !!sub;
+        const showSub = n.r >= 34 && !!n.lastLabel;
         return (
           <g
             key={n.id}
@@ -131,12 +128,6 @@ export default function BubbleChart({
             <circle
               r={n.r}
               fill={c.bg}
-              // 前回話した話題は枠で示す。色を変えると点数が読めなくなる。
-              // accent-ink はパレット内の暗い緑で、bubble-1/2 の文字色として
-              // 既に使っている色。黒（ink-primary）だと強すぎた。
-              // 青や accent-500 は緑と明度が近く、bubble-3 の上でほぼ消える（1.03）
-              stroke={n.past ? "var(--color-accent-ink)" : "none"}
-              strokeWidth={n.past ? 2 : 0}
               className="bubble-float"
               style={{
                 animationDuration: `${n.dur}s`,
@@ -159,10 +150,10 @@ export default function BubbleChart({
                 textAnchor="middle"
                 y={12}
                 fill={c.fg}
-                opacity={n.past ? 1 : 0.75}
-                style={{ fontSize: 9, fontWeight: n.past ? 700 : 400 }}
+                opacity={0.75}
+                style={{ fontSize: 9 }}
               >
-                {sub}
+                {n.lastLabel}
               </text>
             )}
           </g>
