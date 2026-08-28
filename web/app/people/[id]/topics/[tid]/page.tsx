@@ -85,7 +85,7 @@ export default async function TopicDetailPage({
   const base = `/people/${id}/topics/${tid}`;
 
   return (
-    <main className="mx-auto w-full max-w-[430px] px-5 pb-28 pt-8">
+    <main className="mx-auto w-full max-w-[430px] px-5 pb-28 pt-8 lg:max-w-none lg:px-8 lg:pb-10">
       <BackLink fallback={`/people/${id}/topics`}>話題に戻る</BackLink>
 
       <div className="mt-4 flex items-end justify-between gap-4">
@@ -145,7 +145,7 @@ export default async function TopicDetailPage({
             : "内容の記録はまだありません。"}
         </p>
       ) : (
-        <ul className="mt-3 space-y-2">
+        <ul className="mt-3 space-y-2 lg:grid lg:grid-cols-2 lg:gap-2 lg:space-y-0">
           {shown.map((r) => (
             <li key={r.id}>
               <Link
@@ -186,7 +186,7 @@ export default async function TopicDetailPage({
         </div>
       )}
 
-      <div className="fixed inset-x-0 bottom-0 mx-auto w-full max-w-[430px] px-5 pb-6">
+      <div className="fixed inset-x-0 bottom-0 mx-auto w-full max-w-[430px] px-5 pb-6 lg:hidden">
         <Link
           href={`/people/${id}/record`}
           className="block w-full rounded-btn bg-ink-primary py-4 text-center text-body font-bold text-neutral-card"

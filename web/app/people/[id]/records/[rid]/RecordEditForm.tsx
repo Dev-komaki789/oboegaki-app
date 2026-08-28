@@ -113,7 +113,7 @@ export default function RecordEditForm({
         </p>
       )}
 
-      <div className="fixed inset-x-0 bottom-0 mx-auto w-full max-w-[430px] bg-neutral-bg px-5 pb-6 pt-3">
+      <div className="fixed inset-x-0 bottom-0 mx-auto w-full max-w-[560px] bg-neutral-bg px-5 pb-6 pt-3">
         <button
           type="submit"
           disabled={pending}

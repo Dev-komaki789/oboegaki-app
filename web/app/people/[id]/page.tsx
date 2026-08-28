@@ -114,8 +114,10 @@ export default async function PersonPage({
   }
 
   return (
-    <main className="mx-auto w-full max-w-[430px] px-5 pb-28 pt-8">
-      <header className="flex items-center justify-between">
+    <main className="mx-auto w-full max-w-[430px] px-5 pb-28 pt-8 lg:max-w-none lg:px-8 lg:pb-10">
+      {/* タブレットでは左の一覧が常に見えているので「お客さん一覧」は要らない。
+          代わりに「記録する」を右上に出す（下部固定だと右ペインの端に寄る）*/}
+      <header className="flex items-center justify-between lg:hidden">
         {/* 履歴を実際に縮められるのは pop（router.back）だけ。
             replace は一番上を差し替えるだけなので、往復するたびに
             スタックが伸びていく。
@@ -129,21 +131,43 @@ export default async function PersonPage({
         </Link>
       </header>
 
-      <div className="mt-3 flex items-baseline gap-2">
-        <h1 className="text-title">{person.name}</h1>
-        <span className="text-sub text-ink-secondary">{person.name_kana}</span>
-      </div>
+      <div className="mt-3 lg:mt-0 lg:flex lg:items-start lg:justify-between lg:gap-6">
+        <div className="min-w-0">
+          <div className="flex items-baseline gap-2">
+            <h1 className="text-title">{person.name}</h1>
+            <span className="text-sub text-ink-secondary">
+              {person.name_kana}
+            </span>
+          </div>
 
-      <p className="mt-1 text-sub text-ink-secondary">
-        {summary}
-        {person.last_talked_at && (
-          <>
-            {summary && "　"}最終{" "}
-            {format(parseISO(person.last_talked_at), "yyyy/MM/dd")}（
-            {sinceLabel(person.last_talked_at)}）
-          </>
-        )}
-      </p>
+          <p className="mt-1 text-sub text-ink-secondary">
+            {summary}
+            {person.last_talked_at && (
+              <>
+                {summary && "　"}最終{" "}
+                {format(parseISO(person.last_talked_at), "yyyy/MM/dd")}（
+                {sinceLabel(person.last_talked_at)}）
+              </>
+            )}
+          </p>
+        </div>
+
+        <div className="hidden shrink-0 items-center gap-5 lg:flex">
+          <Link
+            href={`/people/${person.id}/edit`}
+            className="text-action text-accent-500"
+          >
+            編集
+          </Link>
+          <Link
+            href={`/people/${person.id}/record`}
+            prefetch={true}
+            className="rounded-btn bg-ink-primary px-6 py-3 text-body font-bold text-neutral-card"
+          >
+            ＋ 記録する
+          </Link>
+        </div>
+      </div>
 
       {/* NG警告：タブの外側に常時表示 */}
       {ngNames.length > 0 && (
@@ -172,15 +196,15 @@ export default async function PersonPage({
 
       <div className="mt-4 rounded-card border border-line-card bg-neutral-card p-4">
         <div className="text-label text-ink-secondary">プロフィール</div>
-        <dl className="mt-2">
+        <dl className="mt-2 lg:mt-3 lg:flex lg:gap-10">
           {profile
             .filter(([, v]) => v)
             .map(([k, v]) => (
-              <div key={k} className="mt-2 flex gap-4">
+              <div key={k} className="mt-2 flex gap-4 lg:mt-0 lg:block">
                 <dt className="w-20 shrink-0 text-sub text-ink-secondary">
                   {k}
                 </dt>
-                <dd className="text-body text-ink-primary">{v}</dd>
+                <dd className="text-body text-ink-primary lg:mt-1">{v}</dd>
               </div>
             ))}
         </dl>
@@ -272,7 +296,7 @@ export default async function PersonPage({
         />
       )}
 
-      <div className="fixed inset-x-0 bottom-0 mx-auto w-full max-w-[430px] px-5 pb-6">
+      <div className="fixed inset-x-0 bottom-0 mx-auto w-full max-w-[430px] px-5 pb-6 lg:hidden">
         <Link
           href={`/people/${person.id}/record`}
           prefetch={true}

@@ -90,11 +90,23 @@ export default async function TopicsPage({
     .slice(0, 3);
 
   return (
-    <main className="mx-auto w-full max-w-[430px] px-5 pb-28 pt-8">
-      <header className="flex items-center justify-between">
+    <main className="mx-auto w-full max-w-[430px] px-5 pb-28 pt-8 lg:max-w-none lg:px-8 lg:pb-10">
+      <header className="flex items-center justify-between lg:hidden">
         <BackLink fallback="/people">お客さん一覧</BackLink>
         <span className="text-sub text-ink-secondary">{person.name}</span>
       </header>
+
+      {/* タブレットでは左の一覧が常に見えているので、名前と操作を上に置く */}
+      <div className="hidden items-center justify-between gap-6 lg:flex">
+        <h1 className="text-title">{person.name}</h1>
+        <Link
+          href={`/people/${person.id}/record`}
+          prefetch={true}
+          className="shrink-0 rounded-btn bg-ink-primary px-6 py-3 text-body font-bold text-neutral-card"
+        >
+          ＋ 記録する
+        </Link>
+      </div>
 
       <div className="mt-4 flex rounded-input bg-neutral-chip p-1">
         <Link
@@ -110,70 +122,81 @@ export default async function TopicsPage({
         </span>
       </div>
 
-      <p className="mt-4 text-sub text-ink-muted">大きいほど盛り上がった</p>
+      {/* タブレットは バブル ＋「盛り上がった順」リスト の2カラム（§8）*/}
+      <div className="lg:flex lg:items-start lg:gap-8">
+        <div className="lg:min-w-0 lg:flex-1">
+          <p className="mt-4 text-sub text-ink-muted">大きいほど盛り上がった</p>
 
-      <BubbleChart personId={person.id} items={bubbles} />
+          <BubbleChart personId={person.id} items={bubbles} />
 
-      {untouched.length > 0 && (
-        <div className="mt-5 flex flex-wrap items-center gap-2">
-          <span className="text-sub text-ink-secondary">
-            まだ話していない：
-          </span>
-          {untouched.map((m) => (
-            <span
-              key={m.id as string}
-              className="rounded-full border border-line-card bg-neutral-card px-3 py-1 text-sub text-ink-tertiary"
-            >
-              {m.name as string}
-            </span>
-          ))}
+          {untouched.length > 0 && (
+            <div className="mt-5 flex flex-wrap items-center gap-2">
+              <span className="text-sub text-ink-secondary">
+                まだ話していない：
+              </span>
+              {untouched.map((m) => (
+                <span
+                  key={m.id as string}
+                  className="rounded-full border border-line-card bg-neutral-card px-3 py-1 text-sub text-ink-tertiary"
+                >
+                  {m.name as string}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
-      )}
 
-      <h2 className="mt-8 flex items-baseline justify-between">
-        <span className="text-name text-ink-primary">盛り上がった順</span>
-        <span className="text-sub text-ink-secondary">全{rows.length}件</span>
-      </h2>
+        <div className="lg:w-[340px] lg:shrink-0">
+          <h2 className="mt-8 flex items-baseline justify-between lg:mt-4">
+            <span className="text-name text-ink-primary">盛り上がった順</span>
+            <span className="text-sub text-ink-secondary">
+              全{rows.length}件
+            </span>
+          </h2>
 
-      {rows.length === 0 ? (
-        <p className="mt-6 text-center text-body text-ink-secondary">
-          まだ記録がありません。
-        </p>
-      ) : (
-        <ul className="mt-3 space-y-2">
-          {rows.map((r) => (
-            <li key={r.id}>
-              <Link
-                href={`/people/${person.id}/topics/${r.id}`}
-                prefetch={true}
-                className="block rounded-card border border-line-card bg-neutral-card p-4"
-              >
-                <div className="flex items-baseline justify-between gap-3">
-                  <span className="text-name text-ink-primary">{r.name}</span>
-                  <span className="text-name font-bold text-accent-500">
-                    {Math.round(r.score)}
-                  </span>
-                </div>
-                <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-neutral-chip">
-                  <div
-                    className="h-full rounded-full bg-accent-500"
-                    style={{
-                      width: `${max > 0 ? (r.score / max) * 100 : 0}%`,
-                    }}
-                  />
-                </div>
-                {r.lastTalkedAt && (
-                  <div className="mt-2 text-caption text-ink-muted">
-                    前回 {format(parseISO(r.lastTalkedAt), "yyyy/MM/dd")}
-                  </div>
-                )}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      )}
+          {rows.length === 0 ? (
+            <p className="mt-6 text-center text-body text-ink-secondary">
+              まだ記録がありません。
+            </p>
+          ) : (
+            <ul className="mt-3 space-y-2">
+              {rows.map((r) => (
+                <li key={r.id}>
+                  <Link
+                    href={`/people/${person.id}/topics/${r.id}`}
+                    prefetch={true}
+                    className="block rounded-card border border-line-card bg-neutral-card p-4"
+                  >
+                    <div className="flex items-baseline justify-between gap-3">
+                      <span className="text-name text-ink-primary">
+                        {r.name}
+                      </span>
+                      <span className="text-name font-bold text-accent-500">
+                        {Math.round(r.score)}
+                      </span>
+                    </div>
+                    <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-neutral-chip">
+                      <div
+                        className="h-full rounded-full bg-accent-500"
+                        style={{
+                          width: `${max > 0 ? (r.score / max) * 100 : 0}%`,
+                        }}
+                      />
+                    </div>
+                    {r.lastTalkedAt && (
+                      <div className="mt-2 text-caption text-ink-muted">
+                        前回 {format(parseISO(r.lastTalkedAt), "yyyy/MM/dd")}
+                      </div>
+                    )}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </div>
 
-      <div className="fixed inset-x-0 bottom-0 mx-auto w-full max-w-[430px] px-5 pb-6">
+      <div className="fixed inset-x-0 bottom-0 mx-auto w-full max-w-[430px] px-5 pb-6 lg:hidden">
         <Link
           href={`/people/${person.id}/record`}
           className="block w-full rounded-btn bg-ink-primary py-4 text-center text-body font-bold text-neutral-card"

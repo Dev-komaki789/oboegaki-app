@@ -1,35 +1,8 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { differenceInCalendarDays, format, parseISO } from "date-fns";
+import { format, parseISO } from "date-fns";
 import SearchBox from "./SearchBox";
-
-/** 年代・性別を1つにまとめ、見た目の特徴を「、」で分割してバッジの配列にする */
-function toBadges(p: {
-  age_group: string | null;
-  gender: string | null;
-  appearance: string | null;
-}) {
-  const list: string[] = [];
-  const ageGender = [p.age_group, p.gender].filter(Boolean).join(" ");
-  if (ageGender) list.push(ageGender);
-  if (p.appearance) {
-    list.push(
-      ...p.appearance
-        .split(/[、,，・]/)
-        .map((s) => s.trim())
-        .filter(Boolean),
-    );
-  }
-  return list;
-}
-
-/** 「3日前」を作る。今日なら「今日」 */
-function sinceLabel(d: string | null) {
-  if (!d) return null;
-  const days = differenceInCalendarDays(new Date(), parseISO(d));
-  if (days <= 0) return "今日";
-  return `${days}日前`;
-}
+import { toBadges, sinceLabel } from "@/lib/person";
 
 export default async function PeoplePage({
   searchParams,
@@ -82,71 +55,82 @@ export default async function PeoplePage({
   const list = people ?? [];
 
   return (
-    <main className="mx-auto w-full max-w-[430px] px-5 pb-28 pt-8">
-      <header className="flex items-baseline justify-between">
-        <h1 className="text-title">お客さん</h1>
-        <div className="flex items-baseline gap-4">
-          <span className="text-sub text-ink-secondary">{list.length}人</span>
-          <Link href="/settings" className="text-action text-accent-500">
-            設定
-          </Link>
-        </div>
-      </header>
-
-      {/* 窓は1つ。4項目を横断する。autoFocus は付けない（M-05） */}
-      <SearchBox initialQuery={keyword} />
-
-      {list.length === 0 ? (
-        <p className="mt-10 text-center text-body text-ink-secondary">
-          {keyword
-            ? `「${keyword}」に一致するお客さんはいません。`
-            : "お客さんがまだ登録されていません。"}
+    <>
+      {/* タブレットでは左のサイドバーが一覧なので、右ペインは案内だけ出す */}
+      <div className="hidden h-dvh flex-col items-center justify-center gap-2 lg:flex">
+        <p className="text-heading text-ink-secondary">
+          お客さんを選んでください
         </p>
-      ) : (
-        <ul className="mt-4 space-y-3">
-          {list.map((p) => {
-            const badges = toBadges(p);
-            return (
-              <li key={p.id}>
-                <Link
-                  href={`/people/${p.id}`}
-                  prefetch={true}
-                  className="block rounded-card border border-line-card bg-neutral-card p-4"
-                >
-                  <div className="flex gap-4">
-                    <div className="flex size-14 shrink-0 items-center justify-center rounded-btn bg-accent-500 text-header text-neutral-card">
-                      {p.name.trim().charAt(0)}
-                    </div>
+        <p className="text-body text-ink-muted">
+          左の一覧から選ぶと、ここに内容が出ます
+        </p>
+      </div>
 
-                    <div className="min-w-0 flex-1">
-                      {/* よみがなは名前の上に置く（ふりがなと同じ並び）。
+      <main className="mx-auto w-full max-w-[430px] px-5 pb-28 pt-8 lg:hidden">
+        <header className="flex items-baseline justify-between">
+          <h1 className="text-title">お客さん</h1>
+          <div className="flex items-baseline gap-4">
+            <span className="text-sub text-ink-secondary">{list.length}人</span>
+            <Link href="/settings" className="text-action text-accent-500">
+              設定
+            </Link>
+          </div>
+        </header>
+
+        {/* 窓は1つ。4項目を横断する。autoFocus は付けない（M-05） */}
+        <SearchBox initialQuery={keyword} />
+
+        {list.length === 0 ? (
+          <p className="mt-10 text-center text-body text-ink-secondary">
+            {keyword
+              ? `「${keyword}」に一致するお客さんはいません。`
+              : "お客さんがまだ登録されていません。"}
+          </p>
+        ) : (
+          <ul className="mt-4 space-y-3">
+            {list.map((p) => {
+              const badges = toBadges(p);
+              return (
+                <li key={p.id}>
+                  <Link
+                    href={`/people/${p.id}`}
+                    prefetch={true}
+                    className="block rounded-card border border-line-card bg-neutral-card p-4"
+                  >
+                    <div className="flex gap-4">
+                      <div className="flex size-14 shrink-0 items-center justify-center rounded-btn bg-accent-500 text-header text-neutral-card">
+                        {p.name.trim().charAt(0)}
+                      </div>
+
+                      <div className="min-w-0 flex-1">
+                        {/* よみがなは名前の上に置く（ふりがなと同じ並び）。
                         モックアップは横並びだが、それだと名前に使える幅が
                         176px ほどしかなく「中村 あゆみ」程度で省略されてしまう。
                         上下に分ければ名前が横幅を独占できる */}
-                      {p.name_kana && (
-                        <p className="truncate text-caption text-ink-secondary">
-                          {p.name_kana}
+                        {p.name_kana && (
+                          <p className="truncate text-caption text-ink-secondary">
+                            {p.name_kana}
+                          </p>
+                        )}
+                        <p className="truncate text-name text-ink-primary">
+                          {p.name}
                         </p>
-                      )}
-                      <p className="truncate text-name text-ink-primary">
-                        {p.name}
-                      </p>
-                    </div>
-
-                    <div className="shrink-0 text-right">
-                      <div className="text-name font-bold text-accent-500">
-                        {sinceLabel(p.last_talked_at)}
                       </div>
-                      {p.last_talked_at && (
-                        <div className="mt-1 text-caption text-ink-muted">
-                          前回{" "}
-                          {format(parseISO(p.last_talked_at), "yyyy/MM/dd")}
-                        </div>
-                      )}
-                    </div>
-                  </div>
 
-                  {/*
+                      <div className="shrink-0 text-right">
+                        <div className="text-name font-bold text-accent-500">
+                          {sinceLabel(p.last_talked_at)}
+                        </div>
+                        {p.last_talked_at && (
+                          <div className="mt-1 text-caption text-ink-muted">
+                            前回{" "}
+                            {format(parseISO(p.last_talked_at), "yyyy/MM/dd")}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/*
                     バッジは名前の列の外に出し、カードの右端まで使う。
                     よみがなを上に移して3行になったぶん、右カラム（3日前/前回）は
                     2行で終わり、バッジの右隣が丸ごと空いていた。
@@ -162,33 +146,34 @@ export default async function PeoplePage({
                     ※ 仕様の「2行目にも収まらない場合は +N」は未実装。
                       文字幅をサーバー側で見積もる必要があり、割に合わないと判断した。
                   */}
-                  {badges.length > 0 && (
-                    <div className="mt-2 flex max-h-16 flex-wrap gap-2 overflow-hidden pl-[72px]">
-                      {badges.map((b, i) => (
-                        <span
-                          key={i}
-                          className="shrink-0 whitespace-nowrap rounded-full bg-neutral-chip px-3 py-1 text-sub leading-5 text-ink-tertiary"
-                        >
-                          {b}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
-      )}
+                    {badges.length > 0 && (
+                      <div className="mt-2 flex max-h-16 flex-wrap gap-2 overflow-hidden pl-[72px]">
+                        {badges.map((b, i) => (
+                          <span
+                            key={i}
+                            className="shrink-0 whitespace-nowrap rounded-full bg-neutral-chip px-3 py-1 text-sub leading-5 text-ink-tertiary"
+                          >
+                            {b}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        )}
 
-      <div className="fixed inset-x-0 bottom-0 mx-auto w-full max-w-[430px] px-5 pb-6">
-        <Link
-          href="/people/new"
-          className="block w-full rounded-btn bg-ink-primary py-4 text-center text-body font-bold text-neutral-card"
-        >
-          ＋ 新しいお客さん
-        </Link>
-      </div>
-    </main>
+        <div className="fixed inset-x-0 bottom-0 mx-auto w-full max-w-[430px] px-5 pb-6">
+          <Link
+            href="/people/new"
+            className="block w-full rounded-btn bg-ink-primary py-4 text-center text-body font-bold text-neutral-card"
+          >
+            ＋ 新しいお客さん
+          </Link>
+        </div>
+      </main>
+    </>
   );
 }
