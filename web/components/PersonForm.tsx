@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
 import type { PersonState } from "@/lib/types";
 
 const initial: PersonState = {};
@@ -35,6 +35,14 @@ export default function PersonForm({
 }) {
   const [state, formAction, pending] = useActionState(action, initial);
 
+  // エラーが画面の外だと、押したのに何も起きていないように見える
+  useEffect(() => {
+    if (!state.error) return;
+    document
+      .querySelector("[data-error]")
+      ?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, [state]);
+
   return (
     <form action={formAction} className="pb-28 lg:pb-0">
       {person && <input type="hidden" name="id" value={person.id} />}
@@ -59,6 +67,16 @@ export default function PersonForm({
         <p className="mt-2 text-sub text-ink-secondary">
           入力が必要なのはここだけです。
         </p>
+        {/* 名前は唯一の必須項目。エラーはこの欄のそばに出す */}
+        {state.error && (
+          <p
+            data-error
+            role="alert"
+            className="mt-3 rounded-input border border-danger-border bg-danger-tint px-4 py-3 text-label text-danger-600"
+          >
+            {state.error}
+          </p>
+        )}
       </div>
 
       {/* ── 区切り ─────────────────────────── */}
@@ -178,15 +196,6 @@ export default function PersonForm({
           />
         </div>
       </div>
-
-      {state.error && (
-        <p
-          role="alert"
-          className="mt-6 rounded-input border border-danger-border bg-danger-tint px-4 py-3 text-label text-danger-600"
-        >
-          {state.error}
-        </p>
-      )}
 
       {/* ── 保存ボタン（下部固定）───────────── */}
       <div className="fixed inset-x-0 bottom-0 mx-auto w-full max-w-[560px] bg-neutral-bg px-5 pb-6 pt-3 lg:static lg:mt-8 lg:px-0 lg:pb-0 lg:pt-0">

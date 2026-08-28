@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { updateRecord, type RecordEditState } from "./actions";
 
 const initial: RecordEditState = {};
@@ -21,6 +21,13 @@ export default function RecordEditForm({
   const [state, formAction, pending] = useActionState(updateRecord, initial);
   const [score, setScore] = useState(initialScore);
   const [dragging, setDragging] = useState(false);
+
+  useEffect(() => {
+    if (!state.error) return;
+    document
+      .querySelector("[data-error]")
+      ?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, [state]);
 
   return (
     <form action={formAction} className="pb-40 lg:pb-0">
@@ -106,6 +113,7 @@ export default function RecordEditForm({
 
       {state.error && (
         <p
+          data-error
           role="alert"
           className="mt-6 rounded-input border border-danger-border bg-danger-tint px-4 py-3 text-label text-danger-600"
         >

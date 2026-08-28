@@ -6,7 +6,12 @@ import { format, parseISO } from "date-fns";
 import { createClient } from "@/lib/supabase/server";
 import { topicScoreUndecayed, type Rec } from "@/lib/score";
 
-export type RecordState = { error?: string; savedAt?: number };
+/** field を持たせるのは、エラーをその入力欄のそばに出すため */
+export type RecordState = {
+  error?: string;
+  field?: "topic" | "score";
+  savedAt?: number;
+};
 
 /**
  * talked_at を決める。深夜は前日扱い（午前4時まで・M-11）。
@@ -39,9 +44,9 @@ export async function saveRecord(
 
   if (!personId) return { error: "お客さんが特定できません。" };
   if (!topicMasterId && !newTopicName)
-    return { error: "話題を選んでください。" };
+    return { error: "話題を選んでください。", field: "topic" };
   if (!Number.isInteger(score) || score < 0 || score > 100) {
-    return { error: "盛り上がりの値が不正です。" };
+    return { error: "盛り上がりの値が不正です。", field: "score" };
   }
 
   const supabase = await createClient();

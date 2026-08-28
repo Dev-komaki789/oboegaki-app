@@ -40,6 +40,7 @@ export default function LoginForm() {
 
       {state.error && (
         <p
+          data-error
           role="alert"
           className="mt-4 rounded-input border border-danger-border bg-danger-tint px-4 py-3 text-label text-danger-600"
         >

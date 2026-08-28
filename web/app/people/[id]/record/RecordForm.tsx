@@ -7,6 +7,19 @@ import BackLink from "@/components/BackLink";
 
 const initial: RecordState = {};
 
+/** エラーはその入力欄のそばに出す。data-error は自動スクロールの目印 */
+function ErrorNote({ children }: { children: React.ReactNode }) {
+  return (
+    <p
+      data-error
+      role="alert"
+      className="mt-3 rounded-input border border-danger-border bg-danger-tint px-4 py-3 text-label text-danger-600"
+    >
+      {children}
+    </p>
+  );
+}
+
 type Chip = { id: string; name: string };
 type KeywordOption = { name: string; count: number };
 
@@ -32,6 +45,14 @@ export default function RecordForm({
   const [contents, setContents] = useState<string[]>([""]);
   const [dragging, setDragging] = useState(false);
   const composing = useRef(false);
+
+  // エラーが出たら、その場所まで送る。
+  // 画面の外に出ていると、押したのに何も起きていないように見える
+  useEffect(() => {
+    if (!state.error) return;
+    const el = document.querySelector("[data-error]");
+    el?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, [state]);
 
   // 「保存して、次を書く」で戻ってきたら入力を空にする
   useEffect(() => {
@@ -153,6 +174,8 @@ export default function RecordForm({
             </button>
           )}
         </div>
+
+        {state.field === "topic" && <ErrorNote>{state.error}</ErrorNote>}
       </section>
 
       {/* ── キーワード（任意）───────────────────── */}
@@ -272,6 +295,8 @@ export default function RecordForm({
           <span>良い</span>
           <span>すごく</span>
         </div>
+
+        {state.field === "score" && <ErrorNote>{state.error}</ErrorNote>}
       </section>
 
       {/* ── 話した内容（任意）───────────────────── */}
@@ -318,14 +343,8 @@ export default function RecordForm({
         </span>
       </label>
 
-      {state.error && (
-        <p
-          role="alert"
-          className="mt-6 rounded-input border border-danger-border bg-danger-tint px-4 py-3 text-label text-danger-600"
-        >
-          {state.error}
-        </p>
-      )}
+      {/* 保存の失敗など、特定の入力欄に紐づかないエラーだけここに出す */}
+      {state.error && !state.field && <ErrorNote>{state.error}</ErrorNote>}
 
       {/* ── 保存（下部固定・M-04）──────────────── */}
       <div className="fixed inset-x-0 bottom-0 mx-auto flex w-full max-w-[560px] gap-3 bg-neutral-bg px-5 pb-6 pt-3 lg:static lg:mt-8 lg:px-0 lg:pb-0 lg:pt-0">
