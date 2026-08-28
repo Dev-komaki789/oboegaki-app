@@ -63,7 +63,7 @@ export default function RecordForm({
   return (
     <form
       action={formAction}
-      className="mx-auto w-full max-w-[560px] px-5 pb-40 pt-8"
+      className="mx-auto w-full max-w-[560px] px-5 pb-40 pt-8 lg:pb-10"
     >
       <input type="hidden" name="person_id" value={personId} />
       <input type="hidden" name="topic_master_id" value={topicId} />
@@ -328,7 +328,7 @@ export default function RecordForm({
       )}
 
       {/* ── 保存（下部固定・M-04）──────────────── */}
-      <div className="fixed inset-x-0 bottom-0 mx-auto flex w-full max-w-[560px] gap-3 bg-neutral-bg px-5 pb-6 pt-3">
+      <div className="fixed inset-x-0 bottom-0 mx-auto flex w-full max-w-[560px] gap-3 bg-neutral-bg px-5 pb-6 pt-3 lg:static lg:mt-8 lg:px-0 lg:pb-0 lg:pt-0">
         <button
           type="submit"
           name="intent"

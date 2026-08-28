@@ -23,7 +23,7 @@ export default function RecordEditForm({
   const [dragging, setDragging] = useState(false);
 
   return (
-    <form action={formAction} className="pb-40">
+    <form action={formAction} className="pb-40 lg:pb-0">
       <input type="hidden" name="id" value={recordId} />
       <input type="hidden" name="person_id" value={personId} />
       <input type="hidden" name="topic_id" value={topicId} />
@@ -113,7 +113,7 @@ export default function RecordEditForm({
         </p>
       )}
 
-      <div className="fixed inset-x-0 bottom-0 mx-auto w-full max-w-[560px] bg-neutral-bg px-5 pb-6 pt-3">
+      <div className="fixed inset-x-0 bottom-0 mx-auto w-full max-w-[560px] bg-neutral-bg px-5 pb-6 pt-3 lg:static lg:mt-8 lg:px-0 lg:pb-0 lg:pt-0">
         <button
           type="submit"
           disabled={pending}

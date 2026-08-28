@@ -54,7 +54,7 @@ export default async function EditPersonPage({
       />
 
       {/* 削除は2段階。1タップで消えないようにする */}
-      <details className="mb-32 mt-4 rounded-input border border-line-form px-4 py-3">
+      <details className="mb-32 mt-4 rounded-input border border-line-form px-4 py-3 lg:mb-10">
         <summary className="cursor-pointer text-action text-ink-secondary">
           このお客さんを削除
         </summary>
