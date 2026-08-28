@@ -131,8 +131,11 @@ export default function BubbleChart({
             <circle
               r={n.r}
               fill={c.bg}
-              // 前回話した話題は枠で示す。色を変えると点数が読めなくなる
-              stroke={n.past ? "var(--color-bubble-past)" : "none"}
+              // 前回話した話題は枠で示す。色を変えると点数が読めなくなる。
+              // ink-primary なのは、4段階の緑すべてと背景の両方で差が出る
+              // 唯一の色だから（最小コントラスト 2.92）。
+              // 青や accent-500 は緑と明度が近く、bubble-3 の上でほぼ消える（1.03）
+              stroke={n.past ? "var(--color-ink-primary)" : "none"}
               strokeWidth={n.past ? 3 : 0}
               className="bubble-float"
               style={{
