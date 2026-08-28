@@ -127,15 +127,6 @@ export default function BubbleChart({
                 fill="none" だとクリックを拾わないので transparent にする */}
                 <circle r={Math.max(n.r, HIT_R)} fill="transparent" />
                 <circle r={n.r} fill={c.bg} />
-                {/* 左上の淡いハイライト。静止したままで球に見せる */}
-                <ellipse
-                  cx={-n.r * 0.3}
-                  cy={-n.r * 0.34}
-                  rx={n.r * 0.3}
-                  ry={n.r * 0.2}
-                  fill="#fff"
-                  opacity={0.22}
-                />
                 {n.r >= 20 && (
                   <text
                     textAnchor="middle"
