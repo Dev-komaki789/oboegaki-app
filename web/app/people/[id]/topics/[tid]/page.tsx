@@ -115,6 +115,10 @@ export default async function TopicDetailPage({
                 <Link
                   key={c.id}
                   href={on ? base : `${base}?k=${c.id}`}
+                  // 絞り込みは同じ画面の中の操作。履歴に積むと「話題に戻る」で
+                  // 選んだ順を遡ることになる（タブと同じ扱い）
+                  replace
+                  scroll={false}
                   className={
                     "rounded-full px-4 py-2 text-action " +
                     shade(c.v) +
@@ -173,6 +177,8 @@ export default async function TopicDetailPage({
                 ? `${base}?k=${filterKeyword}&all=1`
                 : `${base}?all=1`
             }
+            replace
+            scroll={false}
             className="text-action text-accent-500"
           >
             もっと見る（残り {filtered.length - shown.length} 件）
