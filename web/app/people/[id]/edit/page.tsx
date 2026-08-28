@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import PersonForm from "@/components/PersonForm";
 import { updatePerson, deletePerson } from "./actions";
 import BackLink from "@/components/BackLink";
+import Disclosure from "@/components/Disclosure";
 
 export const metadata: Metadata = { title: "お客さんを編集｜おぼえがき" };
 
@@ -54,10 +55,11 @@ export default async function EditPersonPage({
       />
 
       {/* 削除は2段階。1タップで消えないようにする */}
-      <details className="mb-32 mt-4 rounded-input border border-line-form px-4 py-3 lg:mb-10">
-        <summary className="cursor-pointer text-action text-ink-secondary">
-          このお客さんを削除
-        </summary>
+      <Disclosure
+        summary="このお客さんを削除"
+        className="mb-32 mt-4 rounded-input border border-line-form px-4 py-3 lg:mb-10"
+        summaryClassName="cursor-pointer text-action text-ink-secondary"
+      >
         <p className="mt-3 text-sub text-danger-600">
           会話の記録もすべて消えます。元に戻せません。
         </p>
@@ -70,7 +72,7 @@ export default async function EditPersonPage({
             削除する
           </button>
         </form>
-      </details>
+      </Disclosure>
     </main>
   );
 }

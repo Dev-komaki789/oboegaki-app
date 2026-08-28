@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { format, parseISO } from "date-fns";
 import { createClient } from "@/lib/supabase/server";
 import BackLink from "@/components/BackLink";
+import Disclosure from "@/components/Disclosure";
 import RecordEditForm from "./RecordEditForm";
 import { deleteRecord } from "./actions";
 
@@ -76,10 +77,11 @@ export default async function EditRecordPage({
       />
 
       {/* 削除は2段階。1タップで消えないようにする */}
-      <details className="mb-32 mt-4 rounded-input border border-line-form px-4 py-3 lg:mb-10">
-        <summary className="cursor-pointer text-action text-ink-secondary">
-          この記録を削除
-        </summary>
+      <Disclosure
+        summary="この記録を削除"
+        className="mb-32 mt-4 rounded-input border border-line-form px-4 py-3 lg:mb-10"
+        summaryClassName="cursor-pointer text-action text-ink-secondary"
+      >
         <p className="mt-3 text-sub text-danger-600">
           元に戻せません。話題の記録がこれだけだった場合、話題ごと消えます。
         </p>
@@ -102,7 +104,7 @@ export default async function EditRecordPage({
             削除する
           </button>
         </form>
-      </details>
+      </Disclosure>
     </main>
   );
 }
