@@ -132,11 +132,11 @@ export default function BubbleChart({
               r={n.r}
               fill={c.bg}
               // 前回話した話題は枠で示す。色を変えると点数が読めなくなる。
-              // ink-primary なのは、4段階の緑すべてと背景の両方で差が出る
-              // 唯一の色だから（最小コントラスト 2.92）。
+              // accent-ink はパレット内の暗い緑で、bubble-1/2 の文字色として
+              // 既に使っている色。黒（ink-primary）だと強すぎた。
               // 青や accent-500 は緑と明度が近く、bubble-3 の上でほぼ消える（1.03）
-              stroke={n.past ? "var(--color-ink-primary)" : "none"}
-              strokeWidth={n.past ? 3 : 0}
+              stroke={n.past ? "var(--color-accent-ink)" : "none"}
+              strokeWidth={n.past ? 2 : 0}
               className="bubble-float"
               style={{
                 animationDuration: `${n.dur}s`,

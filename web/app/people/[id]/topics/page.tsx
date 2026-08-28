@@ -178,7 +178,7 @@ export default async function TopicsPage({
                       </span>
                       {/* バブルの枠と同じ「輪郭＝前回話した」で揃える */}
                       {past && (
-                        <span className="rounded-badge border border-ink-primary px-2 py-0.5 text-ink-primary">
+                        <span className="rounded-badge border border-accent-border px-2 py-0.5 text-accent-ink">
                           前回話した
                         </span>
                       )}
