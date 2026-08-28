@@ -112,7 +112,7 @@ export default async function TopicsPage({
       </div>
 
       <p className="mt-4 text-sub text-ink-muted">
-        大きいほど盛り上がった　黄色＝前回話した
+        大きいほど盛り上がった　青＝前回話した
       </p>
 
       <BubbleChart personId={person.id} items={bubbles} />
