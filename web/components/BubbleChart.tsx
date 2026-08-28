@@ -21,7 +21,6 @@ export type BubbleItem = {
 type Node = SimulationNodeDatum &
   BubbleItem & {
     r: number;
-    dur: number;
     delay: number;
   };
 
@@ -76,9 +75,8 @@ export default function BubbleChart({
     const data: Node[] = items.map((i, idx) => ({
       ...i,
       r: Math.max(MIN_R, radius(i.score)),
-      // 泡ごとに周期と開始位置をずらす。揃うと一斉に脈打って見える
-      dur: 9 + (idx % 5) * 1.2,
-      delay: -(idx % 7) * 1.9,
+      // 登場を少しずつずらす。同時に出るより、順に現れる方が目を引く
+      delay: idx * 0.045,
 
       // 初期位置を円周上にばらしておくと、まとまるまでが速い
       x: W / 2 + Math.cos((idx / items.length) * Math.PI * 2) * 60,
@@ -121,41 +119,47 @@ export default function BubbleChart({
             className="cursor-pointer"
             onClick={() => router.push(`/people/${personId}/topics/${n.id}`)}
           >
-            {/* 見える円が小さくても押せるようにする透明な当たり判定。
-                fill="none" だとクリックを拾わないので transparent にする。
-                これは揺らさない（押す位置が動くと取りこぼす） */}
-            <circle r={Math.max(n.r, HIT_R)} fill="transparent" />
-            <circle
-              r={n.r}
-              fill={c.bg}
-              className="bubble-float"
-              style={{
-                animationDuration: `${n.dur}s`,
-                animationDelay: `${n.delay}s`,
-              }}
-            />
-            {n.r >= 20 && (
-              <text
-                textAnchor="middle"
-                y={showSub ? -2 : 4}
-                fill={c.fg}
-                style={{ fontSize: Math.min(13, Math.max(9, n.r / 4.2)) }}
-              >
-                {n.name}
-              </text>
-            )}
+            {/* 位置・登場・押下で g を分ける。1つにまとめると transform が
+                互いを上書きしてしまう */}
+            <g className="bubble-pop" style={{ animationDelay: `${n.delay}s` }}>
+              <g className="bubble-press">
+                {/* 見える円が小さくても押せるようにする透明な当たり判定。
+                fill="none" だとクリックを拾わないので transparent にする */}
+                <circle r={Math.max(n.r, HIT_R)} fill="transparent" />
+                <circle r={n.r} fill={c.bg} />
+                {/* 左上の淡いハイライト。静止したままで球に見せる */}
+                <ellipse
+                  cx={-n.r * 0.3}
+                  cy={-n.r * 0.34}
+                  rx={n.r * 0.3}
+                  ry={n.r * 0.2}
+                  fill="#fff"
+                  opacity={0.22}
+                />
+                {n.r >= 20 && (
+                  <text
+                    textAnchor="middle"
+                    y={showSub ? -2 : 4}
+                    fill={c.fg}
+                    style={{ fontSize: Math.min(13, Math.max(9, n.r / 4.2)) }}
+                  >
+                    {n.name}
+                  </text>
+                )}
 
-            {showSub && (
-              <text
-                textAnchor="middle"
-                y={12}
-                fill={c.fg}
-                opacity={0.75}
-                style={{ fontSize: 9 }}
-              >
-                {n.lastLabel}
-              </text>
-            )}
+                {showSub && (
+                  <text
+                    textAnchor="middle"
+                    y={12}
+                    fill={c.fg}
+                    opacity={0.75}
+                    style={{ fontSize: 9 }}
+                  >
+                    {n.lastLabel}
+                  </text>
+                )}
+              </g>
+            </g>
           </g>
         );
       })}

@@ -125,33 +125,51 @@ textarea {
   user-select: text;
 }
 
-/* ── バブルの揺れ（S-06）───────────────────────────
-   泡らしさを出すための最小限の動き。振幅1.5px・周期9〜14秒。
-   最初は3px・4〜6秒だったが、10個が同時に上下すると画面全体が脈打って
-   見え、酔うという指摘が出た。速度で約4分の1に落としてある。
-   当たり判定は24px以上あるので、押しにくくはならない。 */
-@keyframes bubble-float {
-  0%,
+/* ── バブルの見せ方（S-06）─────────────────────────
+   常時ゆらゆら動かしていたが、10個が同時に上下すると画面が脈打って見え、
+   酔うという指摘が出た。動きは「常時」ではなく「きっかけがあるとき」に寄せる。
+
+   ① 登場：開いた瞬間に弾んで出る（1回だけ）
+   ② 押下：タップで少し沈む（触った手応え）
+   ③ ハイライト：左上の淡い白（静止したままで球に見せる）*/
+
+@keyframes bubble-pop {
+  0% {
+    transform: scale(0.2);
+    opacity: 0;
+  }
+  70% {
+    transform: scale(1.06);
+    opacity: 1;
+  }
   100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-1.5px);
+    transform: scale(1);
+    opacity: 1;
   }
 }
 
-.bubble-float {
-  animation-name: bubble-float;
-  animation-timing-function: ease-in-out;
-  animation-iteration-count: infinite;
+.bubble-pop {
+  animation: bubble-pop 0.5s cubic-bezier(0.34, 1.4, 0.64, 1) both;
 }
 
-/* 端末側で「視差効果を減らす」が有効なら動かさない */
+/* 押した瞬間に沈む。transform-origin は既定の 0 0 で、
+   この g の原点＝泡の中心なので、中心を軸に縮む */
+.bubble-press {
+  transition: transform 120ms ease-out;
+}
+.bubble-press:active {
+  transform: scale(0.93);
+}
+
+/* 端末側で「視差効果を減らす」が有効なら、登場も押下も動かさない */
 @media (prefers-reduced-motion: reduce) {
-  @keyframes bubble-float {
-    0%,
-    100% {
-      transform: translateY(0);
-    }
+  .bubble-pop {
+    animation: none;
+  }
+  .bubble-press {
+    transition: none;
+  }
+  .bubble-press:active {
+    transform: none;
   }
 }
