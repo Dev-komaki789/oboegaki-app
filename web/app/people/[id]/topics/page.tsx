@@ -176,8 +176,8 @@ export default async function TopicsPage({
                       <span>
                         前回 {format(parseISO(r.lastTalkedAt), "yyyy/MM/dd")}
                       </span>
+                      {/* バブルの枠と同じ「輪郭＝前回話した」で揃える */}
                       {past && (
-                        {/* バブルの枠と同じ「輪郭＝前回話した」で揃える */}
                         <span className="rounded-badge border border-ink-primary px-2 py-0.5 text-ink-primary">
                           前回話した
                         </span>
