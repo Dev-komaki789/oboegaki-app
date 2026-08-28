@@ -2,16 +2,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import ModeTabs from "@/components/ModeTabs";
+import Timeline from "./Timeline";
+import ByTopicList from "./ByTopicList";
 import BackLink from "@/components/BackLink";
+import type { RecordRow } from "@/lib/person";
 import { differenceInCalendarDays, format, parseISO } from "date-fns";
-
-type RecordRow = {
-  id: string;
-  content: string | null;
-  talked_at: string;
-  topic_id: string;
-  topicName: string;
-};
 
 function sinceLabel(d: string) {
   const n = differenceInCalendarDays(new Date(), parseISO(d));
@@ -221,77 +216,17 @@ export default async function PersonPage({
           initialMode={byTopic ? "topic" : "time"}
           basePath={`/people/${person.id}`}
           byTopic={
-            <div className="mt-4 space-y-3">
-              {[...groups.values()].map((g) => (
-                <div
-                  key={g.name}
-                  className="rounded-card border border-line-card bg-neutral-card p-4"
-                >
-                  <div className="flex items-center gap-2 border-b border-line-faint pb-3">
-                    <span className="text-name text-accent-500">{g.name}</span>
-                    {g.rows.some((r) => r.talked_at === latestVisit) && (
-                      <span className="rounded-full bg-accent-500 px-2 py-0.5 text-caption text-neutral-card">
-                        更新
-                      </span>
-                    )}
-                  </div>
-                  {g.rows.map((r) => (
-                    <div
-                      key={r.id}
-                      className="flex items-baseline justify-between gap-3 border-b border-line-faint py-3 last:border-0 last:pb-0"
-                    >
-                      <span className="whitespace-pre-wrap text-body text-ink-primary">
-                        {r.content}
-                      </span>
-                      <span className="shrink-0 text-caption text-ink-muted">
-                        {format(parseISO(r.talked_at), "yyyy/MM/dd")}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              ))}
-            </div>
+            <ByTopicList
+              groups={[...groups.values()]}
+              latestVisit={latestVisit}
+            />
           }
           timeline={
-            <ol className="mt-4">
-              {records.map((r) => (
-                <li key={r.id} className="flex gap-3">
-                  <div className="w-[76px] shrink-0 pt-1 text-right text-caption text-ink-muted">
-                    {format(parseISO(r.talked_at), "yyyy/MM/dd")}
-                  </div>
-                  <div className="relative flex w-3 shrink-0 justify-center">
-                    <span className="absolute top-2 size-2 rounded-full bg-accent-300" />
-                    <span className="w-px flex-1 bg-line-form" />
-                  </div>
-                  {/* カードごと修正画面への入口。内容が空の記録は話題別タブに
-                      出ないので、時系列からしか辿れない */}
-                  <Link
-                    href={`/people/${person.id}/records/${r.id}`}
-                    className="mb-3 block flex-1 rounded-card border border-line-card bg-neutral-card p-4"
-                  >
-                    <div className="flex items-center gap-2">
-                      <span className="text-label text-accent-500">
-                        {r.topicName}
-                      </span>
-                      {r.talked_at === latestVisit && (
-                        <span className="rounded-full bg-accent-500 px-2 py-0.5 text-caption text-neutral-card">
-                          更新
-                        </span>
-                      )}
-                    </div>
-                    {r.content ? (
-                      <p className="mt-1 whitespace-pre-wrap text-body text-ink-primary">
-                        {r.content}
-                      </p>
-                    ) : (
-                      <p className="mt-1 text-sub text-ink-muted">
-                        （内容の記録なし）
-                      </p>
-                    )}
-                  </Link>
-                </li>
-              ))}
-            </ol>
+            <Timeline
+              personId={person.id}
+              records={records}
+              latestVisit={latestVisit}
+            />
           }
         />
       )}

@@ -27,3 +27,12 @@ export function sinceLabel(d: string | null) {
   if (days <= 0) return "今日";
   return `${days}日前`;
 }
+
+/** 情報タブ（S-04/05）で扱う1件の記録 */
+export type RecordRow = {
+  id: string;
+  content: string | null;
+  talked_at: string;
+  topic_id: string;
+  topicName: string;
+};
