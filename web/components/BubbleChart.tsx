@@ -31,11 +31,15 @@ const HIT_R = 24; // 当たり判定の下限。指で押せる大きさ（§9 S
 const MIN_R = 12; // 見た目の下限。潰れて見えなくならないように
 const MAX_R = 64;
 
-/** 色は表示値の4段階。文字色はコントラスト実測（開発ログ 05）に従う */
+/**
+ * 色は表示値の4段階。文字色はコントラスト実測（開発ログ 05）に従う。
+ *
+ * ★ 「前回話した」も塗りは点数どおりにする。
+ *   §9 は bubble-past（薄いグレー）で塗りつぶし「目立たせない」設計だったが、
+ *   それだと前回話した話題が何点だったか読めなくなる。
+ *   目印は枠に持たせ、塗りは点数の情報を保つ。
+ */
 function fill(item: BubbleItem) {
-  // 「前回話した」は暖色で目立たせる。グレーで沈めると「終わった話題」に見える
-  if (item.past)
-    return { bg: "var(--color-bubble-past)", fg: "var(--color-ink-primary)" };
   if (item.score < 40)
     return { bg: "var(--color-bubble-1)", fg: "var(--color-accent-ink)" };
   if (item.score < 60)
@@ -109,7 +113,10 @@ export default function BubbleChart({
     >
       {nodes.map((n) => {
         const c = fill(n);
-        const showDate = n.r >= 34 && n.lastLabel;
+        // 前回話した泡は、日付ではなく「前回話した」と書く。
+        // 凡例を読まなくても意味が分かるようにするため
+        const sub = n.past ? "前回話した" : n.lastLabel;
+        const showSub = n.r >= 34 && !!sub;
         return (
           <g
             key={n.id}
@@ -124,6 +131,9 @@ export default function BubbleChart({
             <circle
               r={n.r}
               fill={c.bg}
+              // 前回話した話題は枠で示す。色を変えると点数が読めなくなる
+              stroke={n.past ? "var(--color-bubble-past)" : "none"}
+              strokeWidth={n.past ? 3 : 0}
               className="bubble-float"
               style={{
                 animationDuration: `${n.dur}s`,
@@ -133,7 +143,7 @@ export default function BubbleChart({
             {n.r >= 20 && (
               <text
                 textAnchor="middle"
-                y={showDate ? -2 : 4}
+                y={showSub ? -2 : 4}
                 fill={c.fg}
                 style={{ fontSize: Math.min(13, Math.max(9, n.r / 4.2)) }}
               >
@@ -141,15 +151,15 @@ export default function BubbleChart({
               </text>
             )}
 
-            {showDate && (
+            {showSub && (
               <text
                 textAnchor="middle"
                 y={12}
                 fill={c.fg}
-                opacity={0.75}
-                style={{ fontSize: 9 }}
+                opacity={n.past ? 1 : 0.75}
+                style={{ fontSize: 9, fontWeight: n.past ? 700 : 400 }}
               >
-                {n.lastLabel}
+                {sub}
               </text>
             )}
           </g>

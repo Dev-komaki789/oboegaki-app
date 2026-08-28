@@ -112,7 +112,7 @@ export default async function TopicsPage({
       </div>
 
       <p className="mt-4 text-sub text-ink-muted">
-        大きいほど盛り上がった　青＝前回話した
+        大きいほど盛り上がった　枠つき＝前回話した
       </p>
 
       <BubbleChart personId={person.id} items={bubbles} />
@@ -163,10 +163,9 @@ export default async function TopicsPage({
                   </div>
                   <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-neutral-chip">
                     <div
-                      className={
-                        "h-full rounded-full " +
-                        (past ? "bg-bubble-past" : "bg-accent-500")
-                      }
+                      // バーの色は点数を表す。前回話したかどうかは
+                      // 下のバッジで示す（バブルと同じ考え方）
+                      className="h-full rounded-full bg-accent-500"
                       style={{
                         width: `${max > 0 ? (r.score / max) * 100 : 0}%`,
                       }}
