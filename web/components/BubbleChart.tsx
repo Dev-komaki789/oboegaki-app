@@ -25,10 +25,21 @@ type Node = SimulationNodeDatum &
   };
 
 const W = 350;
-const H = 340;
 const HIT_R = 24; // 当たり判定の下限。指で押せる大きさ（§9 S-06）
 const MIN_R = 12; // 見た目の下限。潰れて見えなくならないように
-const MAX_R = 64;
+const CAP_R = 64; // 最大半径の上限
+
+/** 泡が多いほど縦を伸ばす。8個や10個を 340px に詰めると必ず溢れる */
+const heightFor = (n: number) => 300 + Math.min(n, 10) * 14;
+
+/**
+ * 泡の数に応じた最大半径。
+ * 面積の合計がキャンバスの45%に収まるようにする。
+ * 円は詰めても90%程度が限界で、力学的に配置するならもっと余裕が要る。
+ * 上限 64 を固定にしていたため、8個だと合計面積が70%に達して枠から溢れていた。
+ */
+const maxRadiusFor = (n: number, h: number) =>
+  Math.min(CAP_R, Math.sqrt((W * h * 0.45) / (Math.PI * Math.max(n, 1))));
 
 /**
  * 色は表示値の4段階。文字色はコントラスト実測（開発ログ 05）に従う。
@@ -58,6 +69,9 @@ export default function BubbleChart({
   const router = useRouter();
   const [nodes, setNodes] = useState<Node[]>([]);
   const started = useRef(false);
+
+  const H = heightFor(items.length);
+  const MAX_R = maxRadiusFor(items.length, H);
 
   useEffect(() => {
     if (items.length === 0) return;
@@ -92,13 +106,20 @@ export default function BubbleChart({
       )
       // ★ d3 は座標計算だけ。描画は React の SVG で行う。
       //   d3 に DOM を触らせると React の再描画とぶつかる（§9 S-06）
-      .on("tick", () => setNodes([...data]));
+      .on("tick", () => {
+        // 押し合った結果が枠を超えることがあるので、必ず内側に収める
+        for (const n of data) {
+          n.x = Math.min(W - n.r, Math.max(n.r, n.x ?? W / 2));
+          n.y = Math.min(H - n.r, Math.max(n.r, n.y ?? H / 2));
+        }
+        setNodes([...data]);
+      });
 
     started.current = true;
     return () => {
       sim.stop();
     };
-  }, [items]);
+  }, [items, H, MAX_R]);
 
   if (items.length === 0) return null;
 
