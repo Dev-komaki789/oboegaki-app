@@ -39,7 +39,11 @@
   --color-bubble-2: #9bc0ac;
   --color-bubble-3: #7fab94;
   --color-bubble-4: #4e7c63;
-  --color-bubble-past: #e8e7e2;
+  --color-bubble-past: #b29b74;
+  /* 「前回話した」の色。グレーだと「終わった話題」に見えてマイナスに読めるため、
+     暖色に変えた。彩度は既存の緑と同じ C=0.060（OKLCH）に揃えてあるので浮かない。
+     赤（danger-500）は C=0.182 と3倍あり、危険色とは混同されない。
+     旧値は #E8E7E2（薄いグレー）。 */
 
   /* ── セマンティック別名 ── */
   --color-surface-page: var(--color-neutral-bg);

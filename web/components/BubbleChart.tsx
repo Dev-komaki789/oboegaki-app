@@ -33,8 +33,9 @@ const MAX_R = 64;
 
 /** 色は表示値の4段階。文字色はコントラスト実測（開発ログ 05）に従う */
 function fill(item: BubbleItem) {
+  // 「前回話した」は暖色で目立たせる。グレーで沈めると「終わった話題」に見える
   if (item.past)
-    return { bg: "var(--color-bubble-past)", fg: "var(--color-ink-muted)" };
+    return { bg: "var(--color-bubble-past)", fg: "var(--color-ink-primary)" };
   if (item.score < 40)
     return { bg: "var(--color-bubble-1)", fg: "var(--color-accent-ink)" };
   if (item.score < 60)

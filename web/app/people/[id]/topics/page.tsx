@@ -112,7 +112,7 @@ export default async function TopicsPage({
       </div>
 
       <p className="mt-4 text-sub text-ink-muted">
-        大きいほど盛り上がった　薄いグレー＝前回話した
+        大きいほど盛り上がった　黄色＝前回話した
       </p>
 
       <BubbleChart personId={person.id} items={bubbles} />
@@ -173,9 +173,15 @@ export default async function TopicsPage({
                     />
                   </div>
                   {r.lastTalkedAt && (
-                    <div className="mt-2 text-caption text-ink-muted">
-                      前回 {format(parseISO(r.lastTalkedAt), "yyyy/MM/dd")}
-                      {past && "（前回話した）"}
+                    <div className="mt-2 flex items-center gap-2 text-caption text-ink-muted">
+                      <span>
+                        前回 {format(parseISO(r.lastTalkedAt), "yyyy/MM/dd")}
+                      </span>
+                      {past && (
+                        <span className="rounded-badge bg-bubble-past px-2 py-0.5 text-ink-primary">
+                          前回話した
+                        </span>
+                      )}
                     </div>
                   )}
                 </Link>
