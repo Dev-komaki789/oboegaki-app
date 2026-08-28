@@ -22,9 +22,15 @@ export default async function RecordPage({
   ] = await Promise.all([
     supabase.from("people").select("id, name").eq("id", id).maybeSingle(),
     // 話題マスタ全件。初期マスタ（user_id IS NULL）＋ 自分で作ったものを RLS が返す
-    supabase.from("topic_masters").select("id, name, sort_order").order("sort_order"),
+    supabase
+      .from("topic_masters")
+      .select("id, name, sort_order")
+      .order("sort_order"),
     // このお客さんとの実績。records(count) で子テーブルの件数を一緒に取る
-    supabase.from("topics").select("topic_master_id, records(count)").eq("person_id", id),
+    supabase
+      .from("topics")
+      .select("topic_master_id, records(count)")
+      .eq("person_id", id),
     // キーワードは全顧客横断・使用回数順（§9 S-08）
     supabase.from("keywords").select("id, name, records(count)"),
   ]);

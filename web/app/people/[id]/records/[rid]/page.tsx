@@ -29,9 +29,11 @@ export default async function EditRecordPage({
 
   const topicName =
     (
-      (record.topics as unknown as {
-        topic_masters: { name: string } | null;
-      } | null)?.topic_masters ?? null
+      (
+        record.topics as unknown as {
+          topic_masters: { name: string } | null;
+        } | null
+      )?.topic_masters ?? null
     )?.name ?? "（不明）";
   const keywordName =
     (record.keywords as unknown as { name: string } | null)?.name ?? null;
@@ -39,12 +41,7 @@ export default async function EditRecordPage({
   return (
     <main className="mx-auto w-full max-w-[430px] px-5 pt-8">
       <header className="flex items-center gap-4 border-b border-line-form pb-5">
-        <BackLink
-          fallback={`/people/${id}`}
-          className="text-action text-accent-500"
-        >
-          戻る
-        </BackLink>
+        <BackLink fallback={`/people/${id}`}>戻る</BackLink>
         <h1 className="text-header text-ink-primary">記録を修正</h1>
       </header>
 
@@ -88,8 +85,16 @@ export default async function EditRecordPage({
         </p>
         <form action={deleteRecord} className="mt-3">
           <input type="hidden" name="id" value={record.id as string} />
-          <input type="hidden" name="person_id" value={record.person_id as string} />
-          <input type="hidden" name="topic_id" value={record.topic_id as string} />
+          <input
+            type="hidden"
+            name="person_id"
+            value={record.person_id as string}
+          />
+          <input
+            type="hidden"
+            name="topic_id"
+            value={record.topic_id as string}
+          />
           <button
             type="submit"
             className="w-full rounded-btn bg-danger-500 py-3 text-action font-bold text-neutral-card"

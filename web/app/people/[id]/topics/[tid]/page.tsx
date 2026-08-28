@@ -86,12 +86,7 @@ export default async function TopicDetailPage({
 
   return (
     <main className="mx-auto w-full max-w-[430px] px-5 pb-28 pt-8">
-      <BackLink
-        fallback={`/people/${id}/topics`}
-        className="text-action text-accent-500"
-      >
-        話題に戻る
-      </BackLink>
+      <BackLink fallback={`/people/${id}/topics`}>話題に戻る</BackLink>
 
       <div className="mt-4 flex items-end justify-between gap-4">
         <div className="min-w-0">

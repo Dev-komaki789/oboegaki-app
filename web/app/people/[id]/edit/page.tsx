@@ -33,12 +33,7 @@ export default async function EditPersonPage({
   return (
     <main className="mx-auto w-full max-w-[430px] px-5 pt-8">
       <header className="flex items-center gap-4 border-b border-line-form pb-5">
-        <BackLink
-          fallback={`/people/${person.id}`}
-          className="text-action text-accent-500"
-        >
-          戻る
-        </BackLink>
+        <BackLink fallback={`/people/${person.id}`}>戻る</BackLink>
         <h1 className="text-header text-ink-primary">お客さんを編集</h1>
       </header>
 

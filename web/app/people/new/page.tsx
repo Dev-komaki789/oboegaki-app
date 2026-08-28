@@ -22,9 +22,7 @@ export default async function NewPersonPage() {
   return (
     <main className="mx-auto w-full max-w-[430px] px-5 pt-8">
       <header className="flex items-center gap-4 border-b border-line-form pb-5">
-        <BackLink fallback="/people" className="text-action text-accent-500">
-          戻る
-        </BackLink>
+        <BackLink fallback="/people">戻る</BackLink>
         <h1 className="text-header text-ink-primary">新しいお客さん</h1>
       </header>
 

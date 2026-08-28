@@ -76,12 +76,7 @@ export default function RecordForm({
 
       <header className="flex items-center justify-between border-b border-line-form pb-5">
         <div className="flex items-center gap-4">
-          <BackLink
-            fallback={`/people/${personId}`}
-            className="text-action text-accent-500"
-          >
-            閉じる
-          </BackLink>
+          <BackLink fallback={`/people/${personId}`}>閉じる</BackLink>
           <h1 className="text-header text-ink-primary">記録する</h1>
         </div>
         <span className="text-sub text-ink-secondary">{personName}</span>

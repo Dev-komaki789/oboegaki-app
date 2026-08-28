@@ -36,7 +36,10 @@ export default async function TopicsPage({
       .from("records")
       .select("topic_id, keyword_id, score, talked_at")
       .eq("person_id", id),
-    supabase.from("topic_masters").select("id, name, sort_order").order("sort_order"),
+    supabase
+      .from("topic_masters")
+      .select("id, name, sort_order")
+      .order("sort_order"),
   ]);
   if (!person) notFound();
 
@@ -90,9 +93,7 @@ export default async function TopicsPage({
   return (
     <main className="mx-auto w-full max-w-[430px] px-5 pb-28 pt-8">
       <header className="flex items-center justify-between">
-        <BackLink fallback="/people" className="text-action text-accent-500">
-          お客さん一覧
-        </BackLink>
+        <BackLink fallback="/people">お客さん一覧</BackLink>
         <span className="text-sub text-ink-secondary">{person.name}</span>
       </header>
 

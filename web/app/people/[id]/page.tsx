@@ -120,9 +120,7 @@ export default async function PersonPage({
             replace は一番上を差し替えるだけなので、往復するたびに
             スタックが伸びていく。
             タブを replace にしてあるので、pop を辿れば必ず一覧に着く */}
-        <BackLink fallback="/people" className="text-action text-accent-500">
-          お客さん一覧
-        </BackLink>
+        <BackLink fallback="/people">お客さん一覧</BackLink>
         <Link
           href={`/people/${person.id}/edit`}
           className="text-action text-accent-500"
@@ -248,7 +246,9 @@ export default async function PersonPage({
                     className="mb-3 block flex-1 rounded-card border border-line-card bg-neutral-card p-4"
                   >
                     <div className="flex items-center gap-2">
-                      <span className="text-label text-accent-500">{r.topicName}</span>
+                      <span className="text-label text-accent-500">
+                        {r.topicName}
+                      </span>
                       {r.talked_at === latestVisit && (
                         <span className="rounded-full bg-accent-500 px-2 py-0.5 text-caption text-neutral-card">
                           更新
@@ -260,7 +260,9 @@ export default async function PersonPage({
                         {r.content}
                       </p>
                     ) : (
-                      <p className="mt-1 text-sub text-ink-muted">（内容の記録なし）</p>
+                      <p className="mt-1 text-sub text-ink-muted">
+                        （内容の記録なし）
+                      </p>
                     )}
                   </Link>
                 </li>

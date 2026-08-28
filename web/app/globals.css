@@ -104,3 +104,47 @@
   --text-caption--line-height: 1.5;
   --text-caption--font-weight: 400;
 }
+
+/* ── アプリらしい挙動 ─────────────────────────────
+   文字をタップ／長押しすると Chrome の「タップして検索」や選択ハンドルが
+   出てしまうため、本文の選択を止める。入力欄だけは選択できるようにする。
+   （PWA として使う前提。ブラウザで文章をコピーする用途は想定していない） */
+body {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+input,
+textarea {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+/* ── バブルの揺れ（S-06）───────────────────────────
+   泡らしさを出すための最小限の動き。振幅3px・周期4〜6秒。
+   当たり判定は24px以上あるので、押しにくくはならない。 */
+@keyframes bubble-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+.bubble-float {
+  animation-name: bubble-float;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+
+/* 端末側で「視差効果を減らす」が有効なら動かさない */
+@media (prefers-reduced-motion: reduce) {
+  @keyframes bubble-float {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+  }
+}
