@@ -14,6 +14,7 @@ type Person = {
   age_group: string | null;
   gender: string | null;
   appearance: string | null;
+  company: string | null;
   last_talked_at: string | null;
 };
 
@@ -37,7 +38,9 @@ export default function PeopleSidebar() {
     const supabase = createClient();
     supabase
       .from("people")
-      .select("id, name, name_kana, age_group, gender, appearance, last_talked_at")
+      .select(
+        "id, name, name_kana, age_group, gender, appearance, company, last_talked_at",
+      )
       .order("last_talked_at", { ascending: false, nullsFirst: false })
       .then(({ data }) => {
         if (alive) setPeople((data ?? []) as Person[]);
@@ -48,10 +51,14 @@ export default function PeopleSidebar() {
     // 登録・編集・削除のあとに開き直したとき取り直す
   }, [pathname]);
 
+  // 検索対象は一覧本体と同じ4項目（§9 S-02）。役職は含めない
   const list = (people ?? []).filter((p) => {
-    if (!q.trim()) return true;
-    const hay = [p.name, p.name_kana, p.appearance].filter(Boolean).join(" ");
-    return hay.includes(q.trim());
+    const needle = q.trim();
+    if (!needle) return true;
+    const hay = [p.name, p.name_kana, p.appearance, p.company]
+      .filter(Boolean)
+      .join(" ");
+    return hay.includes(needle);
   });
 
   return (
