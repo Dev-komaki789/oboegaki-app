@@ -37,12 +37,16 @@ const heightFor = (n: number) => 300 + Math.min(n, 10) * 14;
 
 /**
  * 泡の数に応じた最大半径。
- * 面積の合計がキャンバスの45%に収まるようにする。
- * 円は詰めても90%程度が限界で、力学的に配置するならもっと余裕が要る。
- * 上限 64 を固定にしていたため、8個だと合計面積が70%に達して枠から溢れていた。
+ * 「全部がこの半径だったら、合計面積が作業領域の65%になる」大きさ。
+ * 実際は点数に応じて小さい泡が混ざるので、埋まるのは25〜30%程度。
+ *
+ * ★ 0.45 から 0.65 に上げた。枠を塊に合わせるようになったので（下の viewBox）、
+ *   ここを上げると塊ごと大きくなり、画面いっぱいに描かれる。
+ *   泡の中の文章が小さくて読みにくかったのが、この1行でいちばん効く。
+ *   上限 CAP_R を超えないので、泡が1〜2個のときに巨大化することはない。
  */
 const maxRadiusFor = (n: number, h: number) =>
-  Math.min(CAP_R, Math.sqrt((W * h * 0.45) / (Math.PI * Math.max(n, 1))));
+  Math.min(CAP_R, Math.sqrt((W * h * 0.65) / (Math.PI * Math.max(n, 1))));
 
 /**
  * 色は話題ごとに固定（lib/topicStyle.ts）。デザイン v2 で点数の4段階から変えた。
@@ -172,7 +176,12 @@ function wrapInCircle(
   }
   if (i < flat.length && lines.length > 0) {
     const last = lines[lines.length - 1];
-    lines[lines.length - 1] = last.slice(0, Math.max(1, last.length - 1)) + "…";
+    // 末尾の1文字を「…」に置き換える。そのとき句読点が残ると
+    // 「ら中学生。…」のように句点と「…」が並んで間が抜けるので、削っておく
+    const cut = last
+      .slice(0, Math.max(1, last.length - 1))
+      .replace(/[。、．，・]+$/, "");
+    lines[lines.length - 1] = (cut || last.slice(0, 1)) + "…";
   }
   return lines;
 }
@@ -228,14 +237,19 @@ export default function BubbleChart({
       //   解ききれずに重なったまま止まる。旧デザインは泡の中が
       //   「話題名＋日付」だけだったので重なりが目立たなかったが、
       //   v2 はアイコンと直近の話題まで入るため、重なると読めなくなる
-      // ★ 半径は AMP ぶん膨らませ、さらに漂う幅ぶん足す。
-      //   輪郭は最大 r*(1+AMP)*WOBBLE_MAX まで出っ張り、そのうえ泡ごと
-      //   DRIFT だけ動くので、平均の r で当たりを取ると隣とぶつかる
+      // 半径は AMP ぶん膨らませる。輪郭が r*(1+AMP) まで出っ張るため。
+      //
+      // ★ 以前は変形の最大（WOBBLE_MAX）と漂いの幅（DRIFT）を丸ごと足して
+      //   いたが、それは「隣り合う2つが、同時に、互いの方向へ、最大まで」
+      //   という起こらない前提だった。実測で 12.1 も隙間が空き、そのぶん
+      //   塊が広がって泡が小さく描かれていた。
+      //   漂いは半分だけ見込む。これで隙間 5.2 になり、泡が2割大きくなる。
+      //   たまに触れ合うが、文字は輪郭より内側（r*(1-AMP)）にあるので隠れない
       .force(
         "collide",
-        forceCollide<Node>(
-          (d) => d.r * (1 + AMP) * WOBBLE_MAX + DRIFT + 2,
-        ).iterations(4),
+        forceCollide<Node>((d) => d.r * (1 + AMP) + DRIFT * 0.5 + 1).iterations(
+          4,
+        ),
       )
       // ★ 既定の alphaDecay（0.0228）では約300ティックで止まる。
       //   中央に寄せる力は alpha に比例して弱まるが collide は弱まらないので、
@@ -280,7 +294,7 @@ export default function BubbleChart({
      塊に合わせれば余白が消えるうえ、同じ画面幅に対して泡が大きく描かれる。
      ext は、変形で一番ふくらみ、かつ漂いで一番端に寄った瞬間でも、
      輪郭が枠の外に出ない大きさ。*/
-  const PAD = 8;
+  const PAD = 3;
   const ext = (n: Node) => n.r * (1 + AMP) * WOBBLE_MAX + DRIFT;
   const viewBox = nodes.length
     ? (() => {
@@ -338,7 +352,10 @@ export default function BubbleChart({
             Math.min(nameBase, nameW / Math.max(1, n.name.length)),
           );
 
-          const subSize = Math.max(8, Math.min(10, rt / 6));
+          // ★ 直近の話題の字。以前は rt/6 で、実際にはほぼ下限の 8 に張り付き、
+          //   画面上では 8.8px しかなかった（小さくて読めないという指摘）。
+          //   rt/5.2・下限8.5 にして 11px 前後にした
+          const subSize = Math.max(8.5, Math.min(11, rt / 5.2));
           const subYs = [rt * 0.34, rt * 0.34 + subSize * 1.15];
           const subLines = showLatest
             ? wrapInCircle(n.latest!, rt, subSize, subYs)
