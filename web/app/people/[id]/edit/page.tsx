@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import PersonForm from "@/components/PersonForm";
 import { updatePerson, deletePerson } from "./actions";
 import BackLink from "@/components/BackLink";
+import AppHeader from "@/components/AppHeader";
 import Disclosure from "@/components/Disclosure";
 
 export const metadata: Metadata = { title: "お客さんを編集｜おぼえがき" };
@@ -33,10 +34,10 @@ export default async function EditPersonPage({
 
   return (
     <main className="mx-auto w-full max-w-[560px] px-5 pt-8">
-      <header className="flex items-center gap-4 border-b border-line-form pb-5">
-        <BackLink fallback={`/people/${person.id}`}>戻る</BackLink>
-        <h1 className="text-header text-ink-primary">お客さんを編集</h1>
-      </header>
+      <AppHeader left={<BackLink fallback={`/people/${person.id}`}>戻る</BackLink>} />
+      <h1 className="mt-5 border-b border-line-form pb-5 text-header text-ink-primary">
+        お客さんを編集
+      </h1>
 
       <PersonForm
         companies={companies}

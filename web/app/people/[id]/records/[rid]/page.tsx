@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { format, parseISO } from "date-fns";
 import { createClient } from "@/lib/supabase/server";
 import BackLink from "@/components/BackLink";
+import AppHeader from "@/components/AppHeader";
 import Disclosure from "@/components/Disclosure";
 import RecordEditForm from "./RecordEditForm";
 import { deleteRecord } from "./actions";
@@ -41,13 +42,13 @@ export default async function EditRecordPage({
 
   return (
     <main className="mx-auto w-full max-w-[560px] px-5 pt-8">
-      <header className="flex items-center gap-4 border-b border-line-form pb-5">
-        <BackLink fallback={`/people/${id}`}>戻る</BackLink>
-        <h1 className="text-header text-ink-primary">記録を修正</h1>
-      </header>
+      <AppHeader left={<BackLink fallback={`/people/${id}`}>戻る</BackLink>} />
+      <h1 className="mt-5 border-b border-line-form pb-5 text-header text-ink-primary">
+        記録を修正
+      </h1>
 
       {/* 変えられないものを先に見せる。日付と話題は記録の「身元」なので触らない */}
-      <dl className="mt-5 rounded-card border border-line-card bg-neutral-card p-4">
+      <dl className="mt-5 card-soft rounded-card border border-line-card bg-neutral-card p-4">
         <div className="flex gap-4">
           <dt className="w-20 shrink-0 text-sub text-ink-secondary">日付</dt>
           <dd className="text-body text-ink-primary">

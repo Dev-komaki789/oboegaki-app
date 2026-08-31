@@ -1,73 +1,123 @@
 @import "tailwindcss";
 
+/* ============================================================
+   デザイン v2（コーラル＋クリーム）
+
+   Canva の案（資料/デザイン案_v2.png）を基準に、色・角丸・書体を入れ替えた。
+   tsx 側に生の色コードは1つも書いていないので、この @theme を差し替えるだけで
+   11画面すべてに一斉に効く。旧デザイン（緑基調）は main ブランチに残してある。
+
+   ★ 画像から抜いた実際の値（sips で BMP に変換して画素を数えた）
+       背景       #f8f5f0（画像全体の 17.7%。最頻色）
+       コーラル    #ea967e（hue 13°）
+       マスタード  #eaba72（hue 36〜42°）
+       セージ      #a2ae7e（hue 75〜80°）
+       ウォームグレー #bdb3a8
+
+   ★ 画像と変えた1点：泡の中の文字を「白」→「濃いインク」にした
+       画像は白文字だが、上のパステル4色に白を載せるとコントラストが
+       1.78〜2.36:1 しか出ず、小さい説明文がほぼ読めない。
+       濃インク #3a3330 なら同じ地色のまま 5.24〜6.94:1 に上がる。
+       地色は画像のまま変えていないので、見た目の印象は保たれる。
+   ============================================================ */
+
 @theme {
-  /* ── accent ── */
-  --color-accent-500: #55806b;
-  --color-accent-600: #4a7260;
-  --color-accent-300: #7fa793;
-  --color-accent-tint: #eaf0ec;
-  --color-accent-border: #cdd8d1;
-  --color-accent-ink: #33463d;
+  /* ── accent（コーラル）──────────────────────────
+     accent-500 は「白文字を載せるボタンの地」と「背景の上に置くリンク・ロゴ」を
+     兼ねる。画像そのままの #ea967e だと、白文字 2.29:1／背景の上 2.11:1 で
+     どちらも読めない。同じ色相のまま暗くして両方を満たす値にした
+     （白文字 5.27:1／背景の上 4.85:1）。
+     画像のあの明るいコーラルは accent-300 に置き、文字を載せない装飾だけに使う */
+  --color-accent-500: #b04e33;
+  --color-accent-600: #9c4429;
+  --color-accent-300: #ea967e; /* 装飾専用。文字を載せない */
+  --color-accent-tint: #fbede7;
+  --color-accent-border: #f0cfc2;
+  --color-accent-ink: #7a3220;
 
   /* ── neutral ── */
-  --color-neutral-bg: #f7f6f3;
-  --color-neutral-card: #ffffff;
-  --color-neutral-field: #efede8;
-  --color-neutral-chip: #edebe6;
-  --color-neutral-chip-soft: #f1efea;
+  --color-neutral-bg: #f8f5f0;
+  --color-neutral-card: #fffdf9;
+  --color-neutral-field: #f4efe7;
+  --color-neutral-chip: #f0ebe2;
+  --color-neutral-chip-soft: #f5f1ea;
 
-  /* ── line ── */
-  --color-line-form: #e4e1da;
-  --color-line-card: #eae7e1;
-  --color-line-faint: #f4f1eb;
+  /* ── line ──────────────────────────────────
+     画像のカードは枠線がほぼ見えない。線は残すが、地との差を詰めて
+     「輪郭」ではなく「境目」程度にする */
+  --color-line-form: #e7dfd3;
+  --color-line-card: #f0e9de;
+  --color-line-faint: #f6f1e9;
 
-  /* ── ink（Figma の text/* を改名） ── */
-  --color-ink-primary: #2c2c2c;
-  --color-ink-secondary: #8b918d;
-  --color-ink-tertiary: #78807c;
-  --color-ink-muted: #a0a5a2;
-  --color-ink-placeholder: #b6bab7;
+  /* ── ink（暖色寄りのグレーに。青みのある灰はクリーム地から浮く）── */
+  --color-ink-primary: #3a3330;
+  --color-ink-secondary: #6b625b;
+  --color-ink-tertiary: #7d746c;
+  --color-ink-muted: #94897f;
+  --color-ink-placeholder: #a89d92;
 
-  /* ── danger ── */
-  --color-danger-500: #d64545;
-  --color-danger-600: #c63f3f;
+  /* ── danger ──────────────────────────────
+     accent がコーラル（赤系）になったので、旧デザインの赤のままだと
+     警告と主ボタンが同じ色に見える。危険側は彩度を上げて明確に赤へ寄せる */
+  --color-danger-500: #c0392b;
+  --color-danger-600: #a93226;
   --color-danger-tint: #fbeae8;
   --color-danger-border: #f0c4c0;
 
-  /* ── bubble（4段階＋前回話した） ── */
-  --color-bubble-1: #b8d4c4;
-  --color-bubble-2: #9bc0ac;
-  --color-bubble-3: #7fab94;
-  --color-bubble-4: #4e7c63;
-  --color-bubble-past: #e8e7e2;
-  /* ★ 現在この色は使っていない（値は §12-4 のまま残してある）。
-     §9 は「前回話した」をこの薄いグレーで塗りつぶす設計だったが、
-     塗りつぶすと点数が読めなくなる。色や枠で示す案も試したが、
-     どれも凡例を読まないと意味が伝わらなかった。
-     泡の中に最終会話日が出ているので、それで足りると判断した。 */
+  /* ── 話題の色（S-06 のバブル・カテゴリ別）──────────────
+     ★ 旧デザインは「点数の4段階」を色で表していたが、v2 では
+       画像のとおり話題ごとに色を持たせる（話題マスタ10件に固定で割り当て。
+       lib/topicStyle.ts）。点数は泡の大きさが表しているので情報は失われない。
+       同じ話題がいつ見ても同じ色・同じアイコンになるぶん、見つけやすくなる。
+     値は画像から抜いたまま。文字は濃インクを載せる（上のコメント参照）*/
+  --color-topic-coral: #ea967e;
+  --color-topic-mustard: #eaba72;
+  --color-topic-sage: #a2ae7e;
+  --color-topic-gray: #bdb3a8;
 
-  /* ── セマンティック別名 ── */
+  /* ── 点数の4段階（話題詳細 S-07 の点数チップ）──────────
+     こちらは「点数そのもの」を表す場所なので4段階のままにする。
+     暖色のグラデーションに置き換えた。文字色はコントラスト実測に従う
+       段階1 #f5e0d6 + accent-ink  7.17:1
+       段階2 #eec3b2 + accent-ink  5.68:1
+       段階3 #e29b80 + ink-primary 4.94:1（accent-ink だと 4.01 で足りない）
+       段階4 #b04e33 + 白          5.27:1 */
+  --color-bubble-1: #f5e0d6;
+  --color-bubble-2: #eec3b2;
+  --color-bubble-3: #e29b80;
+  --color-bubble-4: #b04e33;
+  --color-bubble-past: #e8e5df;
+
+  /* ── セマンティック別名 ──────────────────────────
+     ★ 主ボタンの地を ink-primary（黒に近い灰）から accent-500（コーラル）に変えた。
+       画像の下部の「＋」が主役の色で塗られていて、これが全体の印象を決めている */
   --color-surface-page: var(--color-neutral-bg);
   --color-surface-raised: var(--color-neutral-card);
   --color-stroke-default: var(--color-line-card);
   --color-link: var(--color-accent-500);
   --color-button-primary-fill: var(--color-accent-500);
   --color-button-primary-label: var(--color-neutral-card);
-  --color-button-dark-fill: var(--color-ink-primary);
-  --color-button-dark-hover: #444444;
+  --color-button-dark-fill: var(--color-accent-500);
+  --color-button-dark-hover: var(--color-accent-600);
 
-  /* 角丸 */
-  --radius-badge: 5px;
-  --radius-input: 12px;
-  --radius-btn: 14px;
-  --radius-card: 16px;
+  /* 角丸。画像は全体にひと回り丸い */
+  --radius-badge: 999px;
+  --radius-input: 14px;
+  --radius-btn: 16px;
+  --radius-card: 20px;
 
-  /* フォント */
+  /* フォント
+     font-maru（Zen Maru Gothic）はロゴと見出しだけ。本文に丸ゴシックを使うと
+     長い文が読みにくくなるので、本文は今までどおり Zen Kaku Gothic New */
   --font-zen:
     var(--font-zen-kaku), "Hiragino Sans", "Noto Sans JP", "Yu Gothic", Meiryo,
     system-ui, sans-serif;
+  --font-maru:
+    var(--font-zen-maru), var(--font-zen-kaku), "Hiragino Maru Gothic ProN",
+    "Hiragino Sans", system-ui, sans-serif;
 
-  /* タイプスケール */
+  /* タイプスケール（旧デザインから変えていない。
+     文字の大きさは実機で詰めた結果なので、色の入れ替えとは切り離す）*/
   --text-score: 32px;
   --text-score--line-height: 1.2;
   --text-score--font-weight: 700;
@@ -125,6 +175,15 @@ textarea {
   user-select: text;
 }
 
+/* ── カードの影 ───────────────────────────────
+   画像のカードは枠線ではなく、ごく薄い影で浮いている。
+   枠線だけだと平坦に見えるので、両方を弱く重ねる */
+.card-soft {
+  box-shadow:
+    0 1px 2px rgb(58 51 48 / 0.04),
+    0 4px 12px rgb(58 51 48 / 0.04);
+}
+
 /* ── バブルの見せ方（S-06）─────────────────────────
    常時ゆらゆら動かしていたが、10個が同時に上下すると画面が脈打って見え、
    酔うという指摘が出た。動きは「常時」ではなく「きっかけがあるとき」に寄せる。
@@ -154,6 +213,40 @@ textarea {
   animation: bubble-pop 0.5s cubic-bezier(0.34, 1.4, 0.64, 1) both;
 }
 
+/* ── ふにょふにょ（デザイン v2）────────────────────
+   輪郭を、正円と少しゆがんだ形のあいだでゆっくり行き来させる。
+
+   ★ かかるのは輪郭の <path> だけ。アイコンと文字はこの g の外にあるので
+     いっしょに伸び縮みしない。文字まで動かすと、読もうとした瞬間に
+     ぶれて読めなくなる。
+
+   ★ 「常時揺らすと酔う」という指摘で一度は動きを消している。
+     今回はそれを踏まえて
+       ・1周 10秒（前は上下に脈打つ速さだった）
+       ・大きさの変化は ±2.5%（輪郭のゆがみ ±7% より小さい）
+       ・泡ごとに開始をずらす（animationDelay を負の値にして途中から始める）
+     ので、10個が同時に同じ動きをすることはない。
+     それでも気になるときは、端末の「視差効果を減らす」で止まる（下） */
+@keyframes bubble-wobble {
+  0%,
+  100% {
+    transform: scale(1, 1) rotate(0deg);
+  }
+  25% {
+    transform: scale(1.025, 0.975) rotate(3deg);
+  }
+  50% {
+    transform: scale(0.985, 1.015) rotate(-1deg);
+  }
+  75% {
+    transform: scale(1.01, 0.99) rotate(-3deg);
+  }
+}
+
+.bubble-wobble {
+  animation: bubble-wobble 10s ease-in-out infinite;
+}
+
 /* 押した瞬間に沈む。transform-origin は既定の 0 0 で、
    この g の原点＝泡の中心なので、中心を軸に縮む */
 .bubble-press {
@@ -173,5 +266,8 @@ textarea {
   }
   .bubble-press:active {
     transform: none;
+  }
+  .bubble-wobble {
+    animation: none;
   }
 }

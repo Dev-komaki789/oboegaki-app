@@ -5,6 +5,7 @@ import ModeTabs from "@/components/ModeTabs";
 import Timeline from "./Timeline";
 import ByTopicList from "./ByTopicList";
 import BackLink from "@/components/BackLink";
+import AppHeader from "@/components/AppHeader";
 import type { RecordRow } from "@/lib/person";
 import { differenceInCalendarDays, format, parseISO } from "date-fns";
 
@@ -112,19 +113,22 @@ export default async function PersonPage({
     <main className="mx-auto w-full max-w-[430px] px-5 pb-28 pt-8 lg:max-w-none lg:px-8 lg:pb-10">
       {/* タブレットでは左の一覧が常に見えているので「お客さん一覧」は要らない。
           代わりに「記録する」を右上に出す（下部固定だと右ペインの端に寄る）*/}
-      <header className="flex items-center justify-between lg:hidden">
-        {/* 履歴を実際に縮められるのは pop（router.back）だけ。
-            replace は一番上を差し替えるだけなので、往復するたびに
-            スタックが伸びていく。
-            タブを replace にしてあるので、pop を辿れば必ず一覧に着く */}
-        <BackLink fallback="/people">お客さん一覧</BackLink>
-        <Link
-          href={`/people/${person.id}/edit`}
-          className="text-action text-accent-500"
-        >
-          編集
-        </Link>
-      </header>
+      {/* 履歴を実際に縮められるのは pop（router.back）だけ。
+          replace は一番上を差し替えるだけなので、往復するたびに
+          スタックが伸びていく。
+          タブを replace にしてあるので、pop を辿れば必ず一覧に着く */}
+      <AppHeader
+        className="lg:hidden"
+        left={<BackLink fallback="/people">お客さん一覧</BackLink>}
+        right={
+          <Link
+            href={`/people/${person.id}/edit`}
+            className="text-action text-accent-500"
+          >
+            編集
+          </Link>
+        }
+      />
 
       <div className="mt-3 lg:mt-0 lg:flex lg:items-start lg:justify-between lg:gap-6">
         <div className="min-w-0">
@@ -157,7 +161,7 @@ export default async function PersonPage({
           <Link
             href={`/people/${person.id}/record`}
             prefetch={true}
-            className="rounded-btn bg-ink-primary px-6 py-3 text-body font-bold text-neutral-card"
+            className="rounded-btn bg-accent-500 px-6 py-3 text-body font-bold text-neutral-card"
           >
             ＋ 記録する
           </Link>
@@ -189,7 +193,7 @@ export default async function PersonPage({
         </Link>
       </div>
 
-      <div className="mt-4 rounded-card border border-line-card bg-neutral-card p-4">
+      <div className="mt-4 card-soft rounded-card border border-line-card bg-neutral-card p-4">
         <div className="text-label text-ink-secondary">プロフィール</div>
         <dl className="mt-2 lg:mt-3 lg:flex lg:gap-10">
           {profile
@@ -235,7 +239,7 @@ export default async function PersonPage({
         <Link
           href={`/people/${person.id}/record`}
           prefetch={true}
-          className="block w-full rounded-btn bg-ink-primary py-4 text-center text-body font-bold text-neutral-card"
+          className="block w-full rounded-btn bg-accent-500 py-4 text-center text-body font-bold text-neutral-card"
         >
           ＋ 記録する
         </Link>

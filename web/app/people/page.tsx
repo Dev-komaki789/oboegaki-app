@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { format, parseISO } from "date-fns";
 import SearchBox from "./SearchBox";
 import { toBadges, sinceLabel } from "@/lib/person";
+import AppHeader from "@/components/AppHeader";
 
 export default async function PeoplePage({
   searchParams,
@@ -67,15 +68,18 @@ export default async function PeoplePage({
       </div>
 
       <main className="mx-auto w-full max-w-[430px] px-5 pb-28 pt-8 lg:hidden">
-        <header className="flex items-baseline justify-between">
-          <h1 className="text-title">お客さん</h1>
-          <div className="flex items-baseline gap-4">
-            <span className="text-sub text-ink-secondary">{list.length}人</span>
+        <AppHeader
+          right={
             <Link href="/settings" className="text-action text-accent-500">
               設定
             </Link>
-          </div>
-        </header>
+          }
+        />
+
+        <div className="mt-5 flex items-baseline justify-between">
+          <h1 className="text-title">お客さん</h1>
+          <span className="text-sub text-ink-secondary">{list.length}人</span>
+        </div>
 
         {/* 窓は1つ。4項目を横断する。autoFocus は付けない（M-05） */}
         <SearchBox initialQuery={keyword} />
@@ -95,10 +99,10 @@ export default async function PeoplePage({
                   <Link
                     href={`/people/${p.id}`}
                     prefetch={true}
-                    className="block rounded-card border border-line-card bg-neutral-card p-4"
+                    className="block card-soft rounded-card border border-line-card bg-neutral-card p-4"
                   >
                     <div className="flex gap-4">
-                      <div className="flex size-14 shrink-0 items-center justify-center rounded-btn bg-accent-500 text-header text-neutral-card">
+                      <div className="flex size-14 shrink-0 items-center justify-center rounded-full bg-accent-300 font-maru text-header text-ink-primary">
                         {p.name.trim().charAt(0)}
                       </div>
 
@@ -168,7 +172,7 @@ export default async function PeoplePage({
         <div className="fixed inset-x-0 bottom-0 mx-auto w-full max-w-[430px] px-5 pb-6">
           <Link
             href="/people/new"
-            className="block w-full rounded-btn bg-ink-primary py-4 text-center text-body font-bold text-neutral-card"
+            className="block w-full rounded-btn bg-accent-500 py-4 text-center text-body font-bold text-neutral-card"
           >
             ＋ 新しいお客さん
           </Link>

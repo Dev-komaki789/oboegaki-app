@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import BackLink from "@/components/BackLink";
+import AppHeader from "@/components/AppHeader";
 import { logout } from "./actions";
 
 export const metadata: Metadata = { title: "設定｜おぼえがき" };
@@ -13,12 +14,12 @@ export default async function SettingsPage() {
 
   return (
     <main className="mx-auto w-full max-w-[560px] px-5 pb-16 pt-8">
-      <header className="flex items-center gap-4 border-b border-line-form pb-5">
-        <BackLink fallback="/people">戻る</BackLink>
-        <h1 className="text-header text-ink-primary">設定</h1>
-      </header>
+      <AppHeader left={<BackLink fallback="/people">戻る</BackLink>} />
+      <h1 className="mt-5 border-b border-line-form pb-5 text-header text-ink-primary">
+        設定
+      </h1>
 
-      <dl className="mt-6 rounded-card border border-line-card bg-neutral-card p-4">
+      <dl className="mt-6 card-soft rounded-card border border-line-card bg-neutral-card p-4">
         <dt className="text-sub text-ink-secondary">ログイン中</dt>
         <dd className="mt-1 break-all text-body text-ink-primary">
           {user?.email}

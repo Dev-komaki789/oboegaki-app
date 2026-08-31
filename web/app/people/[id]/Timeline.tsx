@@ -32,7 +32,7 @@ export default function Timeline({
               出ないので、時系列からしか辿れない */}
           <Link
             href={`/people/${personId}/records/${r.id}`}
-            className="mb-3 block flex-1 rounded-card border border-line-card bg-neutral-card p-4"
+            className="mb-3 block flex-1 card-soft rounded-card border border-line-card bg-neutral-card p-4"
           >
             <div className="flex items-center gap-2">
               <span className="text-label text-accent-500">{r.topicName}</span>

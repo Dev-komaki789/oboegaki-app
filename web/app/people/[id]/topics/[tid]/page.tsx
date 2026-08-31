@@ -4,6 +4,9 @@ import { format, parseISO } from "date-fns";
 import { createClient } from "@/lib/supabase/server";
 import { keywordDisplayValues, topicScore, NONE, type Rec } from "@/lib/score";
 import BackLink from "@/components/BackLink";
+import AppHeader from "@/components/AppHeader";
+import TopicIcon from "@/components/TopicIcon";
+import { topicStyle, TOPIC_BG } from "@/lib/topicStyle";
 
 /** 濃淡だけで順位を示す。数字は出さない（§9 S-07・判断15）
  *  文字色はコントラスト実測（開発ログ 05）に従う。白は bubble-4 だけ */
@@ -44,6 +47,9 @@ export default async function TopicDetailPage({
   const topicName =
     (topic.topic_masters as unknown as { name: string } | null)?.name ??
     "（不明）";
+
+  // 泡・一覧と同じ割り当て（lib/topicStyle.ts）
+  const style = topicStyle(topicName);
 
   const rows = (raw ?? []).map((r) => ({
     id: r.id as string,
@@ -86,11 +92,23 @@ export default async function TopicDetailPage({
 
   return (
     <main className="mx-auto w-full max-w-[430px] px-5 pb-28 pt-8 lg:max-w-none lg:px-8 lg:pb-10">
-      <BackLink fallback={`/people/${id}/topics`}>話題に戻る</BackLink>
+      <AppHeader
+        left={
+          <BackLink fallback={`/people/${id}/topics`}>話題に戻る</BackLink>
+        }
+      />
 
-      <div className="mt-4 flex items-end justify-between gap-4">
+      <div className="mt-5 flex items-end justify-between gap-4">
         <div className="min-w-0">
-          <h1 className="text-title">{topicName}</h1>
+          {/* 泡・一覧と同じ色とアイコン。どの話題を開いているかが一目で分かる */}
+          <h1 className="flex min-w-0 items-center gap-2.5 text-title">
+            <span
+              className={`flex size-9 shrink-0 items-center justify-center rounded-full text-ink-primary ${TOPIC_BG[style.color]}`}
+            >
+              <TopicIcon name={style.icon} className="size-5" />
+            </span>
+            <span className="truncate">{topicName}</span>
+          </h1>
           {topic.last_talked_at && (
             <p className="mt-1 text-sub text-ink-secondary">
               前回{" "}
@@ -150,7 +168,7 @@ export default async function TopicDetailPage({
             <li key={r.id}>
               <Link
                 href={`/people/${id}/records/${r.id}`}
-                className="flex items-center gap-3 rounded-card border border-line-card bg-neutral-card px-4 py-4"
+                className="flex items-center gap-3 card-soft rounded-card border border-line-card bg-neutral-card px-4 py-4"
               >
                 <span className="w-[76px] shrink-0 text-caption text-ink-muted">
                   {format(parseISO(r.talkedAt), "yyyy/MM/dd")}
@@ -189,7 +207,7 @@ export default async function TopicDetailPage({
       <div className="fixed inset-x-0 bottom-0 mx-auto w-full max-w-[430px] px-5 pb-6 lg:hidden">
         <Link
           href={`/people/${id}/record`}
-          className="block w-full rounded-btn bg-ink-primary py-4 text-center text-body font-bold text-neutral-card"
+          className="block w-full rounded-btn bg-accent-500 py-4 text-center text-body font-bold text-neutral-card"
         >
           ＋ 記録する
         </Link>

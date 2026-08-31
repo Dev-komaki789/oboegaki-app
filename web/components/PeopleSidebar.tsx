@@ -65,10 +65,12 @@ export default function PeopleSidebar() {
     <div className="flex h-dvh flex-col border-r border-line-card">
       <div className="px-5 pt-6">
         <div className="flex items-center gap-3">
-          <span className="flex size-10 shrink-0 items-center justify-center rounded-btn bg-accent-500 text-name text-neutral-card">
+          <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-accent-300 font-maru text-name text-ink-primary">
             記
           </span>
-          <span className="text-header text-ink-primary">おぼえがき</span>
+          <span className="font-maru text-header tracking-[0.06em] text-accent-500">
+            おぼえがき
+          </span>
           <span className="ml-auto text-sub text-ink-secondary">
             {people ? `${list.length}人` : ""}
           </span>
@@ -167,7 +169,7 @@ export default function PeopleSidebar() {
       <div className="border-t border-line-card p-4">
         <Link
           href="/people/new"
-          className="block w-full rounded-btn bg-ink-primary py-3 text-center text-body font-bold text-neutral-card"
+          className="block w-full rounded-btn bg-accent-500 py-3 text-center text-body font-bold text-neutral-card"
         >
           ＋ 新しいお客さん
         </Link>

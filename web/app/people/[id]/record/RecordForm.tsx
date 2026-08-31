@@ -4,6 +4,7 @@ import { useActionState, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { saveRecord, type RecordState } from "./actions";
 import BackLink from "@/components/BackLink";
+import AppHeader from "@/components/AppHeader";
 
 const initial: RecordState = {};
 
@@ -95,13 +96,17 @@ export default function RecordForm({
       />
       <input type="hidden" name="score" value={score} />
 
-      <header className="flex items-center justify-between border-b border-line-form pb-5">
-        <div className="flex items-center gap-4">
-          <BackLink fallback={`/people/${personId}`}>閉じる</BackLink>
-          <h1 className="text-header text-ink-primary">記録する</h1>
-        </div>
-        <span className="text-sub text-ink-secondary">{personName}</span>
-      </header>
+      <AppHeader
+        left={<BackLink fallback={`/people/${personId}`}>閉じる</BackLink>}
+        right={
+          <span className="truncate text-sub text-ink-secondary">
+            {personName}
+          </span>
+        }
+      />
+      <h1 className="mt-5 border-b border-line-form pb-5 text-header text-ink-primary">
+        記録する
+      </h1>
 
       {/* ── 話題（必須・単一選択）─────────────────── */}
       <section className="mt-6">

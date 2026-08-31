@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Zen_Kaku_Gothic_New } from "next/font/google";
+import { Zen_Kaku_Gothic_New, Zen_Maru_Gothic } from "next/font/google";
 import "./globals.css";
 import DismissKeyboard from "@/components/DismissKeyboard";
 
@@ -8,6 +8,15 @@ const zen = Zen_Kaku_Gothic_New({
   display: "swap",
   preload: false,
   variable: "--font-zen-kaku",
+});
+
+// デザイン v2。ロゴと見出しだけに使う丸ゴシック。
+// 本文にも使うと、長い記録の文章がぼやけて読みにくくなる
+const maru = Zen_Maru_Gothic({
+  weight: ["500", "700"],
+  display: "swap",
+  preload: false,
+  variable: "--font-zen-maru",
 });
 
 export const metadata: Metadata = {
@@ -32,7 +41,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#F7F6F3",
+  themeColor: "#F8F5F0",
   width: "device-width",
   initialScale: 1,
   // ホーム画面から起動したとき、下端の余白（ホームバー）を避ける
@@ -47,7 +56,7 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <body
-        className={`${zen.variable} font-zen bg-neutral-bg text-ink-primary antialiased`}
+        className={`${zen.variable} ${maru.variable} font-zen bg-neutral-bg text-ink-primary antialiased`}
       >
         {children}
         <DismissKeyboard />

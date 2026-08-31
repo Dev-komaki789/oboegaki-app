@@ -16,7 +16,7 @@ export default function ByTopicList({
       {groups.map((g) => (
         <div
           key={g.name}
-          className="rounded-card border border-line-card bg-neutral-card p-4"
+          className="card-soft rounded-card border border-line-card bg-neutral-card p-4"
         >
           <div className="flex items-center gap-2 border-b border-line-faint pb-3">
             <span className="text-name text-accent-500">{g.name}</span>

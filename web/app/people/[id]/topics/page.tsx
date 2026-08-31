@@ -5,6 +5,9 @@ import { format, parseISO } from "date-fns";
 import { createClient } from "@/lib/supabase/server";
 import { topicScore, type Rec } from "@/lib/score";
 import BackLink from "@/components/BackLink";
+import AppHeader from "@/components/AppHeader";
+import TopicIcon from "@/components/TopicIcon";
+import { topicStyle, TOPIC_BG } from "@/lib/topicStyle";
 
 export default async function TopicsPage({
   params,
@@ -32,10 +35,13 @@ export default async function TopicsPage({
       .select("id, topic_master_id, last_talked_at, topic_masters(name)")
       .eq("person_id", id)
       .eq("is_ng", false),
+    // ★ content も取る。デザイン v2 で泡の3行目を「日付」から
+    //   「直近の話題」に変えたため（資料/デザイン案_v2.png）
     supabase
       .from("records")
-      .select("topic_id, keyword_id, score, talked_at")
-      .eq("person_id", id),
+      .select("topic_id, keyword_id, score, talked_at, content")
+      .eq("person_id", id)
+      .order("talked_at", { ascending: false }),
     supabase
       .from("topic_masters")
       .select("id, name, sort_order")
@@ -44,6 +50,10 @@ export default async function TopicsPage({
   if (!person) notFound();
 
   const byTopic = new Map<string, Rec[]>();
+  // 話題ごとの「直近の話題」。上のクエリを talked_at の降順で取っているので、
+  // 最初に見つかった本文がその話題の一番新しいもの。
+  // 本文が空の記録（点数だけ付けた回）は飛ばす
+  const latestText = new Map<string, string>();
   for (const r of rawRecords ?? []) {
     const key = r.topic_id as string;
     const list = byTopic.get(key) ?? [];
@@ -53,6 +63,9 @@ export default async function TopicsPage({
       talkedAt: parseISO(r.talked_at as string),
     });
     byTopic.set(key, list);
+
+    const content = (r.content as string | null)?.trim();
+    if (content && !latestText.has(key)) latestText.set(key, content);
   }
 
   const today = new Date();
@@ -66,6 +79,7 @@ export default async function TopicsPage({
         (t.topic_masters as unknown as { name: string } | null)?.name ??
         "（不明）",
       lastTalkedAt: t.last_talked_at as string | null,
+      latest: latestText.get(t.id as string) ?? null,
       score: topicScore(byTopic.get(t.id as string) ?? [], today) ?? 0,
     }))
     .sort((a, b) => b.score - a.score);
@@ -76,9 +90,7 @@ export default async function TopicsPage({
     id: r.id,
     name: r.name,
     score: r.score,
-    lastLabel: r.lastTalkedAt
-      ? format(parseISO(r.lastTalkedAt), "yyyy/MM/dd")
-      : null,
+    latest: r.latest,
   }));
 
   // まだ話していない話題（§9 S-06）
@@ -91,10 +103,15 @@ export default async function TopicsPage({
 
   return (
     <main className="mx-auto w-full max-w-[430px] px-5 pb-28 pt-8 lg:max-w-none lg:px-8 lg:pb-10">
-      <header className="flex items-center justify-between lg:hidden">
-        <BackLink fallback="/people">お客さん一覧</BackLink>
-        <span className="text-sub text-ink-secondary">{person.name}</span>
-      </header>
+      <AppHeader
+        className="lg:hidden"
+        left={<BackLink fallback="/people">お客さん一覧</BackLink>}
+        right={
+          <span className="truncate text-sub text-ink-secondary">
+            {person.name}
+          </span>
+        }
+      />
 
       {/* タブレットでは左の一覧が常に見えているので、名前と操作を上に置く */}
       <div className="hidden items-center justify-between gap-6 lg:flex">
@@ -102,7 +119,7 @@ export default async function TopicsPage({
         <Link
           href={`/people/${person.id}/record`}
           prefetch={true}
-          className="shrink-0 rounded-btn bg-ink-primary px-6 py-3 text-body font-bold text-neutral-card"
+          className="shrink-0 rounded-btn bg-accent-500 px-6 py-3 text-body font-bold text-neutral-card"
         >
           ＋ 記録する
         </Link>
@@ -160,18 +177,29 @@ export default async function TopicsPage({
             </p>
           ) : (
             <ul className="mt-3 space-y-2">
-              {rows.map((r) => (
+              {rows.map((r) => {
+                // 泡と同じ色・同じアイコンを付ける。
+                // リストと泡が別物に見えると、上の泡を押すのを躊躇する
+                const style = topicStyle(r.name);
+                return (
                 <li key={r.id}>
                   <Link
                     href={`/people/${person.id}/topics/${r.id}`}
                     prefetch={true}
-                    className="block rounded-card border border-line-card bg-neutral-card p-4"
+                    className="card-soft block rounded-card border border-line-card bg-neutral-card p-4"
                   >
-                    <div className="flex items-baseline justify-between gap-3">
-                      <span className="text-name text-ink-primary">
-                        {r.name}
+                    <div className="flex items-center justify-between gap-3">
+                      <span className="flex min-w-0 items-center gap-2.5">
+                        <span
+                          className={`flex size-7 shrink-0 items-center justify-center rounded-full text-ink-primary ${TOPIC_BG[style.color]}`}
+                        >
+                          <TopicIcon name={style.icon} className="size-4" />
+                        </span>
+                        <span className="truncate text-name text-ink-primary">
+                          {r.name}
+                        </span>
                       </span>
-                      <span className="text-name font-bold text-accent-500">
+                      <span className="shrink-0 text-name font-bold text-accent-500">
                         {Math.round(r.score)}
                       </span>
                     </div>
@@ -190,7 +218,8 @@ export default async function TopicsPage({
                     )}
                   </Link>
                 </li>
-              ))}
+                );
+              })}
             </ul>
           )}
         </div>
@@ -199,7 +228,7 @@ export default async function TopicsPage({
       <div className="fixed inset-x-0 bottom-0 mx-auto w-full max-w-[430px] px-5 pb-6 lg:hidden">
         <Link
           href={`/people/${person.id}/record`}
-          className="block w-full rounded-btn bg-ink-primary py-4 text-center text-body font-bold text-neutral-card"
+          className="block w-full rounded-btn bg-accent-500 py-4 text-center text-body font-bold text-neutral-card"
         >
           ＋ 記録する
         </Link>
