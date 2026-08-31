@@ -213,38 +213,88 @@ textarea {
   animation: bubble-pop 0.5s cubic-bezier(0.34, 1.4, 0.64, 1) both;
 }
 
-/* ── ふにょふにょ（デザイン v2）────────────────────
-   輪郭を、正円と少しゆがんだ形のあいだでゆっくり行き来させる。
+/* ── ふよふよ（デザイン v2）──────────────────────
+   動きを2つに分けている。分けるのが肝で、1つにまとめると読めなくなる。
 
-   ★ かかるのは輪郭の <path> だけ。アイコンと文字はこの g の外にあるので
-     いっしょに伸び縮みしない。文字まで動かすと、読もうとした瞬間に
-     ぶれて読めなくなる。
+     ① bubble-float … 泡ぜんぶ（文字ごと）が、ゆっくり漂う
+     ② bubble-wobble … 輪郭の <path> だけが、形を変える
 
-   ★ 「常時揺らすと酔う」という指摘で一度は動きを消している。
-     今回はそれを踏まえて
-       ・1周 10秒（前は上下に脈打つ速さだった）
-       ・大きさの変化は ±2.5%（輪郭のゆがみ ±7% より小さい）
-       ・泡ごとに開始をずらす（animationDelay を負の値にして途中から始める）
-     ので、10個が同時に同じ動きをすることはない。
-     それでも気になるときは、端末の「視差効果を減らす」で止まる（下） */
+   ★ なぜ分けるか
+     変形（②）を文字にもかけると、読もうとした瞬間に字が伸び縮みして
+     読めなくなる。逆に、漂い（①）は泡ごと平行移動するだけなので、
+     文字と輪郭の位置関係が崩れず、読みやすさは変わらない。
+     ＝「形はふよふよ動くが、文字は歪まない」
+
+   ★ 「常時揺らすと酔う」という指摘で一度は動きを消している（§8）。
+     そのときは10個が同じ周期で上下し、画面全体が脈打って見えていた。
+     今回は同じことにならないよう、
+       ・漂いは2種類（float-a は縦寄り、float-b は横寄り）
+       ・周期を泡ごとに変える（漂い 9〜14秒／変形 7〜11秒）
+       ・開始位置も泡ごとにずらす（animationDelay を負の値にする）
+       ・漂いと変形で周期が違うので、同じ組み合わせが戻ってこない
+     ので、10個が揃って動く瞬間が生まれない。
+     それでも気になるときは、端末の「視差効果を減らす」で止まる（下）*/
+
+@keyframes bubble-float-a {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  25% {
+    transform: translate(1.5px, -3.2px);
+  }
+  50% {
+    transform: translate(-1px, -1.2px);
+  }
+  75% {
+    transform: translate(-2px, 2.6px);
+  }
+}
+
+@keyframes bubble-float-b {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  25% {
+    transform: translate(-2.8px, 1.4px);
+  }
+  50% {
+    transform: translate(1.6px, 2.6px);
+  }
+  75% {
+    transform: translate(2.8px, -1.6px);
+  }
+}
+
+.bubble-float-a {
+  animation: bubble-float-a 11s ease-in-out infinite;
+}
+.bubble-float-b {
+  animation: bubble-float-b 11s ease-in-out infinite;
+}
+
 @keyframes bubble-wobble {
   0%,
   100% {
     transform: scale(1, 1) rotate(0deg);
   }
-  25% {
-    transform: scale(1.025, 0.975) rotate(3deg);
+  20% {
+    transform: scale(1.05, 0.95) rotate(4deg);
   }
-  50% {
-    transform: scale(0.985, 1.015) rotate(-1deg);
+  45% {
+    transform: scale(0.955, 1.045) rotate(-2deg);
   }
-  75% {
-    transform: scale(1.01, 0.99) rotate(-3deg);
+  70% {
+    transform: scale(1.035, 0.975) rotate(-5deg);
+  }
+  85% {
+    transform: scale(0.98, 1.025) rotate(2deg);
   }
 }
 
 .bubble-wobble {
-  animation: bubble-wobble 10s ease-in-out infinite;
+  animation: bubble-wobble 9s ease-in-out infinite;
 }
 
 /* 押した瞬間に沈む。transform-origin は既定の 0 0 で、
@@ -267,7 +317,9 @@ textarea {
   .bubble-press:active {
     transform: none;
   }
-  .bubble-wobble {
+  .bubble-wobble,
+  .bubble-float-a,
+  .bubble-float-b {
     animation: none;
   }
 }
