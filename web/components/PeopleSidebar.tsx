@@ -166,12 +166,20 @@ export default function PeopleSidebar() {
         )}
       </div>
 
+      {/* タブレットは右ペインに一覧ヘッダーが出ないので、設定（＝ログアウト）
+          への入口がサイドバーに無いとどこからも辿り着けない */}
       <div className="border-t border-line-card p-4">
         <Link
           href="/people/new"
           className="block w-full rounded-btn bg-accent-500 py-3 text-center text-body font-bold text-neutral-card"
         >
           ＋ 新しいお客さん
+        </Link>
+        <Link
+          href="/settings"
+          className="mt-3 block text-center text-action text-accent-500"
+        >
+          設定
         </Link>
       </div>
     </div>
